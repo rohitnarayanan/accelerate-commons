@@ -17,6 +17,7 @@ buildscript {
 apply plugin: "io.spring.dependency-management"
 apply plugin: "java-library"
 apply plugin: "maven"
+apply plugin: "eclipse"
 
 repositories {
     jcenter()
@@ -31,7 +32,7 @@ dependencyManagement {
 /*
  * Configuration
  */
-project.ext.buildDate = new Date().format("yyyyMMdd");
+def buildTimestamp = new Date().format("yyyyMMdd-hhmmss");
 
 
 /*
@@ -40,11 +41,27 @@ project.ext.buildDate = new Date().format("yyyyMMdd");
 compileJava {
 	sourceCompatibility = javaVersion
 	targetCompatibility = javaVersion
+
+    options.compilerArgs += ["-Xlint:unchecked"]
 }
 
 compileTestJava {
 	sourceCompatibility = javaVersion
 	targetCompatibility = javaVersion
+}
+
+jar {
+	enabled = true
+	from sourceSets.main.allSource
+	manifest {
+		attributes (
+			"gradle-version": gradleVersion,
+			"java-version": javaVersion,
+			"spring-platform-version": springPlatformVersion,
+			"build-version": version,
+			"build-timestamp": buildTimestamp
+		)
+	}
 }
 
 build.finalizedBy install
