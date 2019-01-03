@@ -8,6 +8,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter;
+import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import accelerate.commons.exceptions.ApplicationException;
 import accelerate.commons.utils.JSONUtils;
 
@@ -18,6 +22,7 @@ import accelerate.commons.utils.JSONUtils;
  * @author Rohit Narayanan
  * @since October 2, 2017
  */
+@JsonFilter("default")
 public class DataBean implements Serializable {
 	/**
 	 * serialVersionUID
@@ -43,6 +48,7 @@ public class DataBean implements Serializable {
 	/**
 	 * Instance of {@link DataMap} for generic storage
 	 */
+	@JsonIgnore
 	private DataMap<Object> dataMap;
 
 	/*
@@ -399,6 +405,7 @@ public class DataBean implements Serializable {
 	 * 
 	 * @return dataMap
 	 */
+	@JsonAnyGetter
 	public DataMap<Object> getDataMap() {
 		return this.dataMap;
 	}
