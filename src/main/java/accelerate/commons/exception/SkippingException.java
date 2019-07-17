@@ -1,4 +1,4 @@
-package accelerate.commons.exceptions;
+package accelerate.commons.exception;
 
 /**
  * This is an extension of {@link ApplicationException} class. Its main purpose
@@ -7,9 +7,9 @@ package accelerate.commons.exceptions;
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 2, 2017
+ * @since January 14, 2015
  */
-public class FlowControlException extends ApplicationException {
+public class SkippingException extends ApplicationException {
 	/**
 	 * serialVersionUID
 	 */
@@ -20,7 +20,7 @@ public class FlowControlException extends ApplicationException {
 	 * 
 	 * @param aMessage
 	 */
-	public FlowControlException(String aMessage) {
+	public SkippingException(String aMessage) {
 		super(aMessage);
 	}
 }

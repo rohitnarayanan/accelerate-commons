@@ -1,4 +1,4 @@
-package accelerate.commons.utils;
+package accelerate.commons.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,22 +8,16 @@ import org.slf4j.Logger;
 import org.slf4j.event.Level;
 
 import accelerate.commons.data.DataBean;
-import accelerate.commons.exceptions.ApplicationException;
+import accelerate.commons.exception.ApplicationException;
 
 /**
  * Class providing utility logging methods
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 20, 2018
+ * @since January 14, 2015
  */
 public final class LogUtils {
-	/**
-	 * hidden constructor
-	 */
-	private LogUtils() {
-	}
-
 	/**
 	 * @param aLogger
 	 * @param aLogLevel
@@ -106,5 +100,11 @@ public final class LogUtils {
 		}
 
 		return false;
+	}
+
+	/**
+	 * hidden constructor
+	 */
+	private LogUtils() {
 	}
 }

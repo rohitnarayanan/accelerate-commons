@@ -1,4 +1,4 @@
-package accelerate.commons.utils;
+package accelerate.commons.util;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,36 +9,30 @@ import java.util.Properties;
 
 import org.yaml.snakeyaml.Yaml;
 
-import accelerate.commons.constants.CommonConstants;
+import accelerate.commons.constant.CommonConstants;
 import accelerate.commons.data.DataMap;
-import accelerate.commons.exceptions.ApplicationException;
+import accelerate.commons.exception.ApplicationException;
 
 /**
- * Class providing common utility methods
+ * Class providing utility methods for reading configuration files
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 20, 2018
+ * @since January 14, 2015
  */
 public final class ConfigurationUtils {
-	/**
-	 * hidden constructor
-	 */
-	private ConfigurationUtils() {
-	}
-
 	/**
 	 * @param aConfigPath
 	 * @return
 	 */
-	public static DataMap<String> loadPropertyFile(String aConfigPath) {
+	public static DataMap loadPropertyFile(String aConfigPath) {
 		if (StringUtils.isEmpty(aConfigPath)) {
 			throw new ApplicationException("Parameter ConfigPath is required");
 		}
 
-		String configPath = StringUtils.safeTrim(aConfigPath);
+		String configPath = StringUtils.trim(aConfigPath);
 		URL resourceURL = null;
-		if (configPath.startsWith(CommonConstants.UNIX_PATH_CHAR)) {
+		if (configPath.startsWith(CommonConstants.UNIX_PATH_SEPARATOR)) {
 			resourceURL = ConfigurationUtils.class.getResource(configPath);
 		} else if (configPath.startsWith("classpath:")) {
 			resourceURL = ConfigurationUtils.class.getResource(configPath.substring(10));
@@ -51,7 +45,7 @@ public final class ConfigurationUtils {
 		}
 
 		Properties properties = new Properties();
-		DataMap<String> configMap = new DataMap<>();
+		DataMap configMap = DataMap.newMap();
 		try (InputStream inputStream = resourceURL.openStream()) {
 			properties.load(inputStream);
 			properties.forEach((aKey, aValue) -> configMap.put(aKey.toString(), aValue.toString()));
@@ -66,14 +60,14 @@ public final class ConfigurationUtils {
 	 * @param aConfigPath
 	 * @return
 	 */
-	public static DataMap<String> loadYAMLFile(String aConfigPath) {
+	public static DataMap loadYAMLFile(String aConfigPath) {
 		if (StringUtils.isEmpty(aConfigPath)) {
 			throw new ApplicationException("Parameter ConfigPath is required");
 		}
 
-		String configPath = StringUtils.safeTrim(aConfigPath);
+		String configPath = StringUtils.trim(aConfigPath);
 		URL resourceURL = null;
-		if (configPath.startsWith(CommonConstants.UNIX_PATH_CHAR)) {
+		if (configPath.startsWith(CommonConstants.UNIX_PATH_SEPARATOR)) {
 			resourceURL = ConfigurationUtils.class.getResource(configPath);
 		} else if (configPath.startsWith("classpath:")) {
 			resourceURL = ConfigurationUtils.class.getResource(configPath.substring(10));
@@ -86,7 +80,7 @@ public final class ConfigurationUtils {
 		}
 
 		Yaml yaml = new Yaml();
-		DataMap<String> configMap = new DataMap<>();
+		DataMap configMap = DataMap.newMap();
 		try (InputStream inputStream = resourceURL.openStream()) {
 			Map<String, Object> yamlMap = yaml.loadAs(inputStream, Map.class);
 			yamlToProperties(yamlMap, CommonConstants.EMPTY_STRING, configMap);
@@ -102,15 +96,21 @@ public final class ConfigurationUtils {
 	 * @param aPrefix
 	 * @param aConfigMap
 	 */
-	private static void yamlToProperties(Map<String, Object> aYAMLMap, String aPrefix, DataMap<String> aConfigMap) {
+	private static void yamlToProperties(Map<String, Object> aYAMLMap, String aPrefix, DataMap aConfigMap) {
 		aYAMLMap.entrySet().forEach(aEntry -> {
 			String key = aPrefix + aEntry.getKey();
 			Object value = aEntry.getValue();
 			if (value instanceof Map) {
-				yamlToProperties(Map.class.cast(value), key + CommonConstants.DOT_CHAR, aConfigMap);
+				yamlToProperties(Map.class.cast(value), key + CommonConstants.PERIOD, aConfigMap);
 			} else {
 				aConfigMap.put(key, value.toString());
 			}
 		});
+	}
+
+	/**
+	 * hidden constructor
+	 */
+	private ConfigurationUtils() {
 	}
 }

@@ -1,8 +1,7 @@
-package accelerate.commons.utils;
+package accelerate.commons.util;
 
-import static accelerate.commons.constants.CommonConstants.DOT_CHAR;
-import static accelerate.commons.constants.CommonConstants.EMPTY_STRING;
-import static accelerate.commons.constants.CommonConstants.UNIX_PATH_CHAR;
+import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
+import static accelerate.commons.constant.CommonConstants.PERIOD;
 
 import java.io.IOException;
 import java.nio.file.FileVisitResult;
@@ -20,27 +19,17 @@ import java.util.function.Function;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import accelerate.commons.exceptions.ApplicationException;
+import accelerate.commons.constant.CommonConstants;
+import accelerate.commons.exception.ApplicationException;
 
 /**
- * Class providing utility methods for java.nio.file package
+ * Class providing utility methods for java.nio.file operations
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 20, 2018
+ * @since January 14, 2015
  */
 public final class NIOUtils {
-	/**
-	 * {@link Logger} instance
-	 */
-	private static final Logger _LOGGER = LoggerFactory.getLogger(NIOUtils.class);
-
-	/**
-	 * hidden constructor
-	 */
-	private NIOUtils() {
-	}
-
 	/**
 	 * Method to consistently return path in UNIX format with '/' separator instead
 	 * of '\\' used in windows.
@@ -53,8 +42,9 @@ public final class NIOUtils {
 			return EMPTY_STRING;
 		}
 
-		String pathString = aPath.toString().replaceAll("\\\\", UNIX_PATH_CHAR);
-		_LOGGER.trace("getPathString: [{}] [{}]", aPath, pathString);
+		String pathString = aPath.toString().replace(CommonConstants.WINDOWS_PATH_SEPARATOR,
+				CommonConstants.UNIX_PATH_SEPARATOR);
+		LOGGER.trace("getPathString: [{}] [{}]", aPath, pathString);
 
 		return pathString;
 	}
@@ -69,7 +59,7 @@ public final class NIOUtils {
 		}
 
 		String fileName = aPath.getFileName().toString();
-		_LOGGER.trace("getFileName: [{}] [{}]", aPath, fileName);
+		LOGGER.trace("getFileName: [{}] [{}]", aPath, fileName);
 
 		return fileName;
 	}
@@ -84,11 +74,11 @@ public final class NIOUtils {
 		}
 
 		String fileName = getFileName(aPath);
-		int extnIndex = fileName.lastIndexOf(DOT_CHAR);
+		int extnIndex = fileName.lastIndexOf(CommonConstants.PERIOD);
 		extnIndex = (extnIndex == -1) ? fileName.length() : extnIndex;
 		String baseName = fileName.substring(0, extnIndex);
 
-		_LOGGER.trace("getBaseName: [{}] [{}]", aPath, baseName);
+		LOGGER.trace("getBaseName: [{}] [{}]", aPath, baseName);
 
 		return baseName;
 	}
@@ -103,34 +93,40 @@ public final class NIOUtils {
 		}
 
 		String fileName = getFileName(aPath);
-		int extnIndex = fileName.lastIndexOf(DOT_CHAR);
-		String fileExtn = (extnIndex == -1) ? EMPTY_STRING : fileName.substring(extnIndex + 1);
+		int extnIndex = fileName.lastIndexOf(CommonConstants.PERIOD);
+		String fileExtn = (extnIndex == -1) ? CommonConstants.EMPTY_STRING : fileName.substring(extnIndex + 1);
 
-		_LOGGER.trace("getFileExtn: [{}] [{}]", aPath, fileExtn);
+		LOGGER.trace("getFileExtn: [{}] [{}]", aPath, fileExtn);
 
 		return fileExtn;
 	}
 
 	/**
+	 * The method gets the parent {@link Path} up to the given level.
+	 * 
 	 * @param aPath
-	 * @param aLevel
-	 * @return Relative path
+	 * @param aUpLevel
+	 * @return Parent path up to the given level or the root path
 	 */
-	public static Path getParent(Path aPath, int aLevel) {
+	public static Path getParent(Path aPath, int aUpLevel) {
 		if (aPath == null) {
 			return Paths.get(EMPTY_STRING);
 		}
 
-		if (aLevel == 0) {
+		if (aUpLevel == 0) {
 			return aPath;
 		}
 
 		Path parent = aPath.getParent();
-		for (int idx = 1; idx < aLevel; idx++) {
+		for (int idx = 1; idx <= aUpLevel; idx++) {
+			if (parent.getParent() == null) {
+				return parent;
+			}
+
 			parent = parent.getParent();
 		}
 
-		_LOGGER.trace("getParent: [{}] [{}] [{}]", aPath, aLevel, parent);
+		LOGGER.trace("getParent: [{}] [{}] [{}]", aPath, aUpLevel, parent);
 
 		return parent;
 	}
@@ -141,12 +137,16 @@ public final class NIOUtils {
 	 * @return Relative path
 	 */
 	public static String getRelativePath(Path aRoot, Path aPath) {
+		if (aRoot == null) {
+			return getPathString(aPath);
+		}
+
 		if (aPath == null) {
-			return EMPTY_STRING;
+			return getPathString(aRoot);
 		}
 
 		String relativePath = getPathString(aRoot.relativize(aPath));
-		_LOGGER.trace("getRelativePath: [{}] [{}] [{}]", aRoot, aPath, relativePath);
+		LOGGER.trace("getRelativePath: [{}] [{}] [{}]", aRoot, aPath, relativePath);
 
 		return relativePath;
 	}
@@ -158,14 +158,14 @@ public final class NIOUtils {
 	 * @throws IOException
 	 */
 	public static Path rename(Path aPath, String aNewName) throws IOException {
-		if (aPath == null || StringUtils.isEmpty(aNewName)) {
+		if (CommonUtils.isEmpty(aNewName)) {
 			return aPath;
 		}
 
 		String extn = getFileExtn(aPath);
-		Path newPath = Files.move(aPath, aPath.getParent().resolve(aNewName + DOT_CHAR + extn),
+		Path newPath = Files.move(aPath, aPath.getParent().resolve(aNewName + PERIOD + extn),
 				StandardCopyOption.ATOMIC_MOVE);
-		_LOGGER.trace("getRelativePath: [{}] [{}] [{}]", aPath, aNewName, newPath);
+		LOGGER.trace("getRelativePath: [{}] [{}] [{}]", aPath, aNewName, newPath);
 
 		return newPath;
 	}
@@ -178,7 +178,8 @@ public final class NIOUtils {
 	 *                              {@link #walkFileTree(Path, Function, BiFunction, BiFunction, Function, Function, BiFunction)}
 	 */
 	public static Map<String, Path> searchByName(Path aRootPath, String aNamePattern) throws ApplicationException {
-		return walkFileTree(aRootPath, null, null, null, aPath -> getBaseName(aPath).matches(aNamePattern), null, null);
+		return walkFileTree(aRootPath, null, null, null, null, null,
+				(aPath, aFileVisitResult) -> getBaseName(aPath).matches(aNamePattern));
 	}
 
 	/**
@@ -189,8 +190,8 @@ public final class NIOUtils {
 	 *                              {@link #walkFileTree(Path, Function, BiFunction, BiFunction, Function, Function, BiFunction)}
 	 */
 	public static Map<String, Path> searchByExtn(Path aRootPath, String aSearchExtn) throws ApplicationException {
-		return walkFileTree(aRootPath, null, null, null,
-				aPath -> StringUtils.safeEquals(getFileExtn(aPath), aSearchExtn), null, null);
+		return walkFileTree(aRootPath, null, null, null, null, null,
+				(aPath, aFileVisitResult) -> CommonUtils.compare(getFileExtn(aPath), aSearchExtn));
 	}
 
 	/**
@@ -280,7 +281,18 @@ public final class NIOUtils {
 			throw new ApplicationException(error);
 		}
 
-		_LOGGER.trace("walkFileTree: root=[{}], selectCount=[{}]", aRootPath, fileMap.size());
+		LOGGER.trace("walkFileTree: root=[{}], selectCount=[{}]", aRootPath, fileMap.size());
 		return fileMap;
+	}
+
+	/**
+	 * {@link Logger} instance
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(NIOUtils.class);
+
+	/**
+	 * hidden constructor
+	 */
+	private NIOUtils() {
 	}
 }

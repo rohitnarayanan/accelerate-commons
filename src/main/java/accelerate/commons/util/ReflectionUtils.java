@@ -1,25 +1,19 @@
-package accelerate.commons.utils;
+package accelerate.commons.util;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import accelerate.commons.exceptions.ApplicationException;
+import accelerate.commons.exception.ApplicationException;
 
 /**
  * Class providing utility methods for reflection operations
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 2, 2017
+ * @since January 14, 2015
  */
 public final class ReflectionUtils {
-	/**
-	 * hidden constructor
-	 */
-	private ReflectionUtils() {
-	}
-
 	/**
 	 * @param aTargetClass
 	 * @param aTargetInstance
@@ -148,8 +142,8 @@ public final class ReflectionUtils {
 	 *                              {@link #invokeMethod(Class, Object, String, Class[], Object[])}
 	 */
 	public static Object invokeGetter(Object aTargetInstance, String aTargetField) throws ApplicationException {
-		return invokeMethod(aTargetInstance.getClass(), aTargetInstance,
-				"get" + StringUtils.safeCapitalize(aTargetField), (Class<?>[]) null, (Object[]) null);
+		return invokeMethod(aTargetInstance.getClass(), aTargetInstance, "get" + StringUtils.capitalize(aTargetField),
+				(Class<?>[]) null, (Object[]) null);
 	}
 
 	/**
@@ -161,7 +155,13 @@ public final class ReflectionUtils {
 	 */
 	public static void invokeSetter(Object aTargetInstance, String aTargetField, Object aFieldValue)
 			throws ApplicationException {
-		invokeMethod(aTargetInstance.getClass(), aTargetInstance, "set" + StringUtils.safeCapitalize(aTargetField),
+		invokeMethod(aTargetInstance.getClass(), aTargetInstance, "set" + StringUtils.capitalize(aTargetField),
 				new Class<?>[] { aFieldValue.getClass() }, new Object[] { aFieldValue });
+	}
+
+	/**
+	 * hidden constructor
+	 */
+	private ReflectionUtils() {
 	}
 }

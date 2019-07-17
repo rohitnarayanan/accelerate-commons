@@ -1,10 +1,12 @@
-package accelerate.commons.utils;
+package accelerate.commons.util;
 
-import static accelerate.commons.constants.CommonConstants.EMPTY_STRING;
+import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
 
 import java.io.IOException;
+import java.util.Map;
 
 import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
+import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -13,32 +15,28 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.ser.PropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleBeanPropertyFilter;
 import com.fasterxml.jackson.databind.ser.impl.SimpleFilterProvider;
 
-import accelerate.commons.exceptions.ApplicationException;
+import accelerate.commons.data.DataMap;
+import accelerate.commons.exception.ApplicationException;
 
 /**
  * Class providing utility methods for JSON operations
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 2, 2017
+ * @since January 14, 2015
  */
 public final class JSONUtils {
-	/**
-	 * hidden constructor
-	 */
-	private JSONUtils() {
-	}
-
 	/**
 	 * This method returns the default instance of {@link ObjectMapper}
 	 *
 	 * @return
 	 */
 	public static ObjectMapper objectMapper() {
-		return objectMapper(Include.NON_NULL, false, true, true, false);
+		return objectMapper(Include.NON_NULL, false, true, true, true);
 	}
 
 	/**
@@ -74,6 +72,7 @@ public final class JSONUtils {
 		mapper.configure(JsonGenerator.Feature.QUOTE_FIELD_NAMES, aQuoteFieldNames);
 		mapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, aEscapeNonAscii);
 		mapper.configure(MapperFeature.DEFAULT_VIEW_INCLUSION, aIncludeDefaultView);
+		mapper.configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, false);
 
 		mapper.setFilterProvider(
 				new SimpleFilterProvider().setDefaultFilter(SimpleBeanPropertyFilter.serializeAllExcept()));
@@ -164,6 +163,7 @@ public final class JSONUtils {
 		}
 
 		try {
+			aObjectMapper.addMixIn(aObject.getClass(), PropertyFilterMixIn.class);
 			return aObjectMapper
 					.writer(new SimpleFilterProvider()
 							.setDefaultFilter(SimpleBeanPropertyFilter.serializeAllExcept(aExcludedFields)))
@@ -209,6 +209,7 @@ public final class JSONUtils {
 		}
 
 		try {
+			aObjectMapper.addMixIn(aObject.getClass(), PropertyFilterMixIn.class);
 			return aObjectMapper
 					.writer(new SimpleFilterProvider()
 							.setDefaultFilter(SimpleBeanPropertyFilter.filterOutAllExcept(aIncludedFields)))
@@ -222,7 +223,7 @@ public final class JSONUtils {
 	 * This method parses the given JSON string and returns an instance of the given
 	 * class loaded with data
 	 *
-	 * @param             <T> Any subclass of {@link Object}
+	 * @param <T>         Any subclass of {@link Object}
 	 * @param aJSONString JSON string to be parsed
 	 * @param aClass      {@link Class} which should be instantiated from the JSON
 	 *                    string
@@ -241,7 +242,7 @@ public final class JSONUtils {
 	 * allows the caller to provide a pre-configured instance of
 	 * {@link ObjectMapper}
 	 *
-	 * @param               <T> Any subclass of {@link Object}
+	 * @param <T>           Any subclass of {@link Object}
 	 * @param aJSONString   JSON string to be parsed
 	 * @param aClass        {@link Class} which should be instantiated from the JSON
 	 *                      string
@@ -256,5 +257,157 @@ public final class JSONUtils {
 		} catch (IOException error) {
 			throw new ApplicationException(error);
 		}
+	}
+
+	/**
+	 * @param aArgs
+	 * @return
+	 * @throws ApplicationException
+	 */
+	public static String buildJSON(Object... aArgs) throws ApplicationException {
+		return DataMap.newMap(aArgs).toJSON();
+	}
+
+	/**
+	 * @param aAttributes
+	 * @return
+	 * @throws ApplicationException
+	 */
+	public static String buildJSON(Map<?, ?> aAttributes) throws ApplicationException {
+		return serialize(aAttributes);
+	}
+
+	/**
+	 * Empty class to enable {@link PropertyFilter} to allow partial JSON
+	 * serializing
+	 * 
+	 * @version 1.0 Initial Version
+	 * @author Rohit Narayanan
+	 * @since July 17, 2019
+	 */
+	@JsonFilter("PropertyFilter")
+	class PropertyFilterMixIn {
+		// empty class
+	}
+
+//	/**
+//	 * Method to create a new JSON object
+//	 * 
+//	 * @return
+//	 */
+//	public static final StringBuilder newJSONObject() {
+//		return new StringBuilder("{");
+//	}
+//
+//	/**
+//	 * Method to create a new JSON list
+//	 * 
+//	 * @return
+//	 */
+//	public static final StringBuilder newJSONList() {
+//		return new StringBuilder("[");
+//	}
+//
+//	/**
+//	 * Method to create a new JSON list
+//	 * 
+//	 * @param aJSONBuffer
+//	 * @return
+//	 */
+//	public static final String getJSONString(StringBuilder aJSONBuffer) {
+//		if (CommonUtils.isEmpty(aJSONBuffer)) {
+//			return CommonConstants.EMPTY_STRING;
+//		}
+//
+//		if (aJSONBuffer.charAt(0) == '{') {
+//			return closeJSONObject(aJSONBuffer).toString();
+//		} else if (aJSONBuffer.charAt(0) == '[') {
+//			return closeJSONList(aJSONBuffer).toString();
+//		}
+//
+//		throw new ApplicationException("Invalid JSON Buffer: {}", aJSONBuffer);
+//	}
+//
+//	/**
+//	 * Method to start a JSON object attribute
+//	 * 
+//	 * @param aJSONBuffer
+//	 * @param aKey
+//	 * @return
+//	 */
+//	public static final StringBuilder startJSONObject(StringBuilder aJSONBuffer, String aKey) {
+//		return aJSONBuffer.append(CommonConstants.DOUBLE_QUOTES).append(aKey).append("\": {");
+//	}
+//
+//	/**
+//	 * Method to close a JSON object value
+//	 * 
+//	 * @param aJSONBuffer
+//	 * @return
+//	 */
+//	public static final StringBuilder closeJSONObject(StringBuilder aJSONBuffer) {
+//		return deleteLastComma(aJSONBuffer).append("}");
+//	}
+//
+//	/**
+//	 * Method to write JSON list attribute
+//	 * 
+//	 * @param aJSONBuffer
+//	 * @param aKey
+//	 * @return
+//	 */
+//	public static final StringBuilder startJSONList(StringBuilder aJSONBuffer, String aKey) {
+//		return aJSONBuffer.append("\"").append(aKey).append("\": [");
+//	}
+//
+//	/**
+//	 * Method to close a JSON list value
+//	 * 
+//	 * @param aJSONBuffer
+//	 * @return
+//	 */
+//	public static final StringBuilder closeJSONList(StringBuilder aJSONBuffer) {
+//		return deleteLastComma(aJSONBuffer).append("]");
+//	}
+//
+//	/**
+//	 * Method to write JSON value by escaping characters
+//	 * 
+//	 * @param aJSONBuffer
+//	 * @param aKey
+//	 * @param aValue
+//	 * @return
+//	 */
+//	public static final StringBuilder writeJSONValue(StringBuilder aJSONBuffer, String aKey, Object aValue) {
+//		String safeValue = (CommonUtils.isEmpty(aValue)) ? NULL_VALUE : aValue.toString();
+//		return aJSONBuffer.append("\"").append(aKey).append("\": \"")
+//				.append(safeValue.replace("\\", "\\\\").replace("\"", "\\\"").replace("\r", "\\r").replace("\n", "\\n"))
+//				.append("\",");
+//	}
+//
+//	/**
+//	 * Method to close a JSON list value
+//	 * 
+//	 * @param aJSONBuffer
+//	 * @return
+//	 */
+//	private static final StringBuilder deleteLastComma(StringBuilder aJSONBuffer) {
+//		int lastIndex = (aJSONBuffer.length() - 1);
+//		if (",".equals(aJSONBuffer.substring(lastIndex))) {
+//			aJSONBuffer.deleteCharAt(lastIndex);
+//		}
+//
+//		return aJSONBuffer;
+//	}
+//
+//	/**
+//	 * 
+//	 */
+//	private static final String NULL_VALUE = "NULL";
+
+	/**
+	 * hidden constructor
+	 */
+	private JSONUtils() {
 	}
 }

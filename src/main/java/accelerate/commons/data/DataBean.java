@@ -1,28 +1,26 @@
 package accelerate.commons.data;
 
 import java.io.Serializable;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonFilter;
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import accelerate.commons.exceptions.ApplicationException;
-import accelerate.commons.utils.JSONUtils;
+import accelerate.commons.exception.ApplicationException;
+import accelerate.commons.util.CommonUtils;
+import accelerate.commons.util.JSONUtils;
 
 /**
  * Generic Data Bean class with embedded {@link DataMap} for extensibility
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 2, 2017
+ * @since January 14, 2015
  */
-@JsonFilter("default")
 public class DataBean implements Serializable {
 	/**
 	 * serialVersionUID
@@ -34,81 +32,68 @@ public class DataBean implements Serializable {
 	 */
 	private transient String idField;
 
-	/**
-	 * {@link Set} to include names of fields to exclude while logging
-	 */
-	private transient Set<String> jsonIgnoreFields = Collections.emptySet();
-
-	/**
-	 * Flag to indicate that the bean stores a huge amount of data, so exception
-	 * handlers and interceptors can avoid serializing the entire bean
-	 */
-	private transient boolean largeDataset;
+//	/**
+//	 * Flag to indicate that the bean stores a huge amount of data, so exception
+//	 * handlers and interceptors can avoid serializing the entire bean
+//	 */
+//	private transient boolean largeDataset;
 
 	/**
 	 * Instance of {@link DataMap} for generic storage
 	 */
+	@JsonAnySetter
 	@JsonIgnore
-	private DataMap<Object> dataMap;
+	private DataMap dataMap = DataMap.newMap();
+
+	/**
+	 * {@link Set} to include names of fields to exclude while serializing
+	 */
+	protected transient Set<String> jsonIgnoreFields = Collections.emptySet();
+
+	/*
+	 * Static Methods
+	 */
+	/**
+	 * Static shortcut method to build a new instance
+	 * 
+	 * @param aArgs
+	 * @return
+	 */
+	public static final DataBean newBean(Object... aArgs) {
+		DataBean bean = new DataBean();
+		if (!CommonUtils.isEmpty(aArgs)) {
+			bean.dataMap.putAllAnd(aArgs);
+		}
+
+		return bean;
+	}
+
+	/**
+	 * default constructor
+	 */
+	public DataBean() {
+	}
+
+	/**
+	 * alternate constructor to set id field
+	 * 
+	 * @param aIdField
+	 */
+	public DataBean(String aIdField) {
+		this.idField = aIdField;
+	}
 
 	/*
 	 * Public API
 	 */
 	/**
-	 * Enabling method chaining
+	 * Getter method for "dataMap" property
 	 * 
-	 * @param aKey
-	 * @param aValue
-	 * @return
-	 * @see accelerate.commons.data.DataMap#putAnd(java.lang.String,
-	 *      java.lang.Object)
+	 * @return dataMap
 	 */
-	public DataBean putAnd(String aKey, Object aValue) {
-		this.dataMap.putAnd(aKey, aValue);
-		return this;
-	}
-
-	/**
-	 * This methods returns a JSON representation of this bean
-	 *
-	 * @return JSON Representation
-	 * @throws ApplicationException thrown due to {@link #toJSON(boolean)}
-	 */
-	public String toJSON() throws ApplicationException {
-		return toJSON(false);
-	}
-
-	/**
-	 * This methods returns a JSON representation of this bean
-	 * 
-	 * @param aForce
-	 * @return
-	 * @throws ApplicationException thrown due to
-	 *                              {@link JSONUtils#serialize(Object)}
-	 */
-	public String toJSON(boolean aForce) throws ApplicationException {
-		if (this.largeDataset && !aForce) {
-			return toShortJSON();
-		}
-
-		if (this.jsonIgnoreFields.isEmpty()) {
-			return JSONUtils.serialize(this);
-		}
-
-		return JSONUtils.serializeExcept(this, this.jsonIgnoreFields.stream().toArray(String[]::new));
-	}
-
-	/**
-	 * This method return a short JSON representation of this bean to save memory or
-	 * disk space
-	 *
-	 * @return log string
-	 * @throws ApplicationException thrown due to
-	 *                              {@link JSONUtils#serialize(Object)}
-	 */
-	public String toShortJSON() throws ApplicationException {
-		return (this.idField != null) ? JSONUtils.serializeOnly(this, this.idField)
-				: String.format("{\"id\":\"%s\"}", super.toString());
+	@JsonAnyGetter
+	public DataMap getDataMap() {
+		return this.dataMap;
 	}
 
 	/**
@@ -141,198 +126,47 @@ public class DataBean implements Serializable {
 		}
 	}
 
-	/*
-	 * Delegate methods
-	 */
 	/**
-	 * @param aKey
-	 * @return
-	 * @see accelerate.commons.data.DataMap#getString(java.lang.String)
+	 * This methods returns a JSON representation of this bean
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException thrown due to {@link #toJSON(boolean)}
 	 */
-	public String getString(String aKey) {
-		return this.dataMap.getString(aKey);
+	public String toJSON() throws ApplicationException {
+		return toJSON(false);
 	}
 
 	/**
-	 * @param aKey
-	 * @return
-	 * @see accelerate.commons.data.DataMap#getInteger(java.lang.String)
-	 */
-	public Integer getInt(String aKey) {
-		return this.dataMap.getInteger(aKey);
-	}
-
-	/**
-	 * @param aKey
-	 * @return
-	 * @see accelerate.commons.data.DataMap#getBoolean(java.lang.String)
-	 */
-	public boolean getBoolean(String aKey) {
-		return this.dataMap.getBoolean(aKey);
-	}
-
-	/**
-	 * @return
-	 * @see java.util.HashMap#size()
-	 */
-	public int size() {
-		return this.dataMap.size();
-	}
-
-	/**
-	 * @return
-	 * @see java.util.HashMap#isEmpty()
-	 */
-	public boolean isEmpty() {
-		return this.dataMap.isEmpty();
-	}
-
-	/**
-	 * @param aKey
-	 * @return
-	 * @see java.util.HashMap#get(java.lang.Object)
-	 */
-	public Object get(String aKey) {
-		return this.dataMap.get(aKey);
-	}
-
-	/**
-	 * @param aKey
-	 * @return
-	 * @see java.util.HashMap#containsKey(java.lang.Object)
-	 */
-	public boolean containsKey(String aKey) {
-		return this.dataMap.containsKey(aKey);
-	}
-
-	/**
-	 * @param aKey
-	 * @param aValue
-	 * @return
-	 * @see java.util.HashMap#put(java.lang.Object, java.lang.Object)
-	 */
-	public Object put(String aKey, Object aValue) {
-		return this.dataMap.put(aKey, aValue);
-	}
-
-	/**
-	 * @param aM
-	 * @see java.util.HashMap#putAll(java.util.Map)
-	 */
-	public void putAll(Map<? extends String, ? extends Object> aM) {
-		this.dataMap.putAll(aM);
-	}
-
-	/**
-	 * @param aKey
-	 * @return
-	 * @see java.util.HashMap#remove(java.lang.Object)
-	 */
-	public Object remove(String aKey) {
-		return this.dataMap.remove(aKey);
-	}
-
-	/**
+	 * This methods returns a JSON representation of this bean
 	 * 
-	 * @see java.util.HashMap#clear()
-	 */
-	public void clear() {
-		this.dataMap.clear();
-	}
-
-	/**
-	 * @param aValue
+	 * @param aForce
 	 * @return
-	 * @see java.util.HashMap#containsValue(java.lang.Object)
+	 * @throws ApplicationException thrown due to
+	 *                              {@link JSONUtils#serialize(Object)}
 	 */
-	public boolean containsValue(Object aValue) {
-		return this.dataMap.containsValue(aValue);
+	public String toJSON(@SuppressWarnings("unused") boolean aForce) throws ApplicationException {
+//		if (this.largeDataset && !aForce) {
+//			return toShortJSON();
+//		}
+
+		if (this.jsonIgnoreFields.isEmpty()) {
+			return JSONUtils.serialize(this);
+		}
+
+		return JSONUtils.serializeExcept(this, this.jsonIgnoreFields.toArray(new String[this.jsonIgnoreFields.size()]));
 	}
 
 	/**
-	 * @return
-	 * @see java.util.HashMap#keySet()
+	 * This method return a short JSON representation of this bean to save memory or
+	 * disk space
+	 *
+	 * @return log string
+	 * @throws ApplicationException thrown due to
+	 *                              {@link JSONUtils#serialize(Object)}
 	 */
-	public Set<String> keySet() {
-		return this.dataMap.keySet();
-	}
-
-	/**
-	 * @return
-	 * @see java.util.HashMap#values()
-	 */
-	public Collection<Object> values() {
-		return this.dataMap.values();
-	}
-
-	/**
-	 * @return
-	 * @see java.util.HashMap#entrySet()
-	 */
-	public Set<Entry<String, Object>> entrySet() {
-		return this.dataMap.entrySet();
-	}
-
-	/**
-	 * @param aKey
-	 * @param aDefaultValue
-	 * @return
-	 * @see java.util.HashMap#getOrDefault(java.lang.Object, java.lang.Object)
-	 */
-	public Object getOrDefault(Object aKey, Object aDefaultValue) {
-		return this.dataMap.getOrDefault(aKey, aDefaultValue);
-	}
-
-	/**
-	 * @param aKey
-	 * @param aValue
-	 * @return
-	 * @see java.util.HashMap#putIfAbsent(java.lang.Object, java.lang.Object)
-	 */
-	public Object putIfAbsent(String aKey, Object aValue) {
-		return this.dataMap.putIfAbsent(aKey, aValue);
-	}
-
-	/**
-	 * @param aKey
-	 * @param aValue
-	 * @return
-	 * @see java.util.HashMap#remove(java.lang.Object, java.lang.Object)
-	 */
-	public boolean remove(Object aKey, Object aValue) {
-		return this.dataMap.remove(aKey, aValue);
-	}
-
-	/**
-	 * @param aKey
-	 * @param aOldValue
-	 * @param aNewValue
-	 * @return
-	 * @see java.util.HashMap#replace(java.lang.Object, java.lang.Object,
-	 *      java.lang.Object)
-	 */
-	public boolean replace(String aKey, Object aOldValue, Object aNewValue) {
-		return this.dataMap.replace(aKey, aOldValue, aNewValue);
-	}
-
-	/**
-	 * @param aKey
-	 * @param aValue
-	 * @return
-	 * @see java.util.HashMap#replace(java.lang.Object, java.lang.Object)
-	 */
-	public Object replace(String aKey, Object aValue) {
-		return this.dataMap.replace(aKey, aValue);
-	}
-
-	/*
-	 * Constructors
-	 */
-	/**
-	 * default constructor
-	 */
-	public DataBean() {
-		this.dataMap = new DataMap<>();
+	public String toShortJSON() throws ApplicationException {
+		return (this.idField != null) ? JSONUtils.serializeOnly(this, this.idField)
+				: JSONUtils.buildJSON("id", super.toString());
 	}
 
 	/*
@@ -353,60 +187,81 @@ public class DataBean implements Serializable {
 	}
 
 	/*
-	 * Getters/Setters
+	 * Delegate Methods
 	 */
 	/**
-	 * Getter method for "idField" property
-	 * 
-	 * @return idField
+	 * @param aKey
+	 * @param aValue
+	 * @return
+	 * @see accelerate.commons.data.DataMap#putAnd(java.lang.String,
+	 *      java.lang.Object)
 	 */
-	public String getIdField() {
-		return this.idField;
+	public DataBean putAnd(String aKey, Object aValue) {
+		this.dataMap.putAnd(aKey, aValue);
+
+		return this;
 	}
 
 	/**
-	 * Setter method for "idField" property
-	 * 
-	 * @param aIdField
+	 * @param aSourceMap
+	 * @return
+	 * @see accelerate.commons.data.DataMap#putAllAnd(java.util.Map)
 	 */
-	public void setIdField(String aIdField) {
-		this.idField = aIdField;
+	public DataBean putAllAnd(Map<? extends String, ? extends Object> aSourceMap) {
+		this.dataMap.putAllAnd(aSourceMap);
+
+		return this;
 	}
 
 	/**
-	 * Getter method for "largeDataset" property
-	 * 
-	 * @return largeDataset
+	 * @param aArgs
+	 * @return
+	 * @see accelerate.commons.data.DataMap#putAllAnd(Object...)
 	 */
-	public boolean isLargeDataset() {
-		return this.largeDataset;
+	public DataBean putAllAnd(Object... aArgs) {
+		for (int idx = 0; idx < aArgs.length; idx += 2) {
+			this.dataMap.put((String) aArgs[idx], aArgs[idx + 1]);
+		}
+
+		return this;
 	}
 
 	/**
-	 * Setter method for "largeDataset" property
-	 * 
-	 * @param aLargeDataset
+	 * @param <T>
+	 * @param aKey
+	 * @return
+	 * @see accelerate.commons.data.DataMap#get(java.lang.String)
 	 */
-	public void setLargeDataset(boolean aLargeDataset) {
-		this.largeDataset = aLargeDataset;
+	public <T> T get(String aKey) {
+		return this.dataMap.get(aKey);
 	}
 
 	/**
-	 * Getter method for "jsonIgnoreFields" property
-	 * 
-	 * @return jsonIgnoreFields
+	 * @param aKey
+	 * @return
+	 * @see accelerate.commons.data.DataMap#getString(java.lang.String)
 	 */
-	public Set<String> getJsonIgnoreFields() {
-		return this.jsonIgnoreFields;
+	public String getString(String aKey) {
+		return this.dataMap.getString(aKey);
 	}
 
 	/**
-	 * Getter method for "dataMap" property
-	 * 
-	 * @return dataMap
+	 * @param aKey
+	 * @return
+	 * @see accelerate.commons.data.DataMap#getInt(java.lang.String)
 	 */
-	@JsonAnyGetter
-	public DataMap<Object> getDataMap() {
-		return this.dataMap;
+	public Integer getInt(String aKey) {
+		return this.dataMap.getInt(aKey);
+	}
+
+	/**
+	 * @param aKey
+	 * @param aValue
+	 * @return
+	 * @see accelerate.commons.data.DataMap#checkValue(java.lang.String,
+	 *      java.lang.Object)
+	 */
+	public boolean checkValue(String aKey, Object aValue) {
+		return this.dataMap.checkValue(aKey, aValue);
 	}
 }

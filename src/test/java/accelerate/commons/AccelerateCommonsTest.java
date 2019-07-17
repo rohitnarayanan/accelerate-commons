@@ -1,14 +1,14 @@
 package accelerate.commons;
 
 import accelerate.commons.data.DataMap;
-import accelerate.commons.utils.ConfigurationUtils;
+import accelerate.commons.util.ConfigurationUtils;
 
 /**
- * PUT DESCRIPTION HERE
+ * Basic test class for this project
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since December 17, 2018
+ * @since January 14, 2015
  */
 public class AccelerateCommonsTest {
 	/**
@@ -16,11 +16,11 @@ public class AccelerateCommonsTest {
 	 */
 	public static void main(String[] args) {
 		try {
-			DataMap<String> dataMap = ConfigurationUtils.loadYAMLFile("/application.yml");
-			System.out.println(dataMap.get("test.servers"));
+			DataMap dataMap = ConfigurationUtils.loadYAMLFile("/accelerate/commons/util/ConfigurationUtilsTest.yml");
+			System.out.println(dataMap.getString("test.list"));
 
 			dataMap = ConfigurationUtils.loadPropertyFile("/temp.properties");
-			System.out.println(dataMap.get("test.servers[0]"));
+			System.out.println(dataMap.getString("test.servers[0]"));
 		} catch (Exception error) {
 			error.printStackTrace();
 		}
