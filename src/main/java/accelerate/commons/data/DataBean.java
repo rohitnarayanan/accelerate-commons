@@ -8,7 +8,6 @@ import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import accelerate.commons.exception.ApplicationException;
 import accelerate.commons.util.CommonUtils;
@@ -42,7 +41,6 @@ public class DataBean implements Serializable {
 	 * Instance of {@link DataMap} for generic storage
 	 */
 	@JsonAnySetter
-	@JsonIgnore
 	private DataMap dataMap = DataMap.newMap();
 
 	/**

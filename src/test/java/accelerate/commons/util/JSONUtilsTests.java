@@ -72,7 +72,7 @@ public class JSONUtilsTests {
 	}
 
 	/**
-	 * Test method for {@link JSONUtils#buildJSON(String, Object)}.
+	 * Test method for {@link JSONUtils#buildJSON(Object...)}.
 	 */
 	@Test
 	void testBuildJSONStringObject() {

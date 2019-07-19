@@ -1,14 +1,13 @@
 package accelerate.commons.data;
 
-import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
-import static accelerate.commons.constant.CommonConstants.SPACE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
+
+import com.jayway.jsonpath.JsonPath;
 
 import accelerate.commons.util.JSONUtils;
 
@@ -23,12 +22,11 @@ import accelerate.commons.util.JSONUtils;
 class DataBeanTest {
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.data.DataBean#newBean(java.lang.Object[])} and
-	 * {@link accelerate.commons.data.DataBean#getDataMap()}
+	 * {@link accelerate.commons.data.DataBean#newBean(java.lang.Object[])}
 	 */
 	@Test
 	void testNewBean() {
-		assertEquals(1, DataBean.newBean(KEY, VALUE).getDataMap().size());
+		assertEquals(VALUE, DataBean.newBean(KEY, VALUE).get(KEY));
 	}
 
 	/**
@@ -36,7 +34,7 @@ class DataBeanTest {
 	 */
 	@Test
 	void testDataBean() {
-		assertEquals(1, new DataBean().putAnd(KEY, VALUE).getDataMap().size());
+		assertEquals(VALUE, new DataBean().putAnd(KEY, VALUE).get(KEY));
 	}
 
 	/**
@@ -46,12 +44,13 @@ class DataBeanTest {
 	 */
 	@Test
 	void testDataBeanString() {
-		Assertions.assertThat(DataBean.newBean(KEY, VALUE).toShortJSON().replaceAll(SPACE, EMPTY_STRING))
-				.startsWith("{\"id\":");
+		DataBean dataBean = DataBean.newBean(KEY, VALUE);
+		String objectToString = DataBean.class.getName() + "@" + Integer.toHexString(dataBean.hashCode());
+		assertEquals(objectToString, JsonPath.parse(dataBean.toShortJSON()).read("$.id"));
 
 		TestDataBean testDataBean = new TestDataBean();
 		testDataBean.setBeanId("1234");
-		assertEquals(JSONUtils.buildJSON("beanId", "1234"), testDataBean.toShortJSON().replaceAll(SPACE, EMPTY_STRING));
+		assertEquals("1234", JsonPath.parse(testDataBean.toShortJSON()).read("$.beanId"));
 	}
 
 	/**
@@ -71,12 +70,11 @@ class DataBeanTest {
 		testDataBean.setBeanValue("Value1234");
 
 		testDataBean.addJsonIgnoreFields("beanValue");
-		assertEquals(JSONUtils.buildJSON("beanId", "1234"), testDataBean.toJSON().replaceAll(SPACE, EMPTY_STRING));
+		assertEquals("1234", JsonPath.parse(testDataBean.toJSON()).read("$.beanId"));
 
 		testDataBean.addJsonIgnoreFields("beanId");
 		testDataBean.removeJsonIgnoreFields("beanValue");
-		assertEquals(JSONUtils.buildJSON("beanValue", "Value1234"),
-				testDataBean.toString().replaceAll(SPACE, EMPTY_STRING));
+		assertEquals("Value1234", JsonPath.parse(testDataBean.toString()).read("$.beanValue"));
 	}
 
 	/**
@@ -144,6 +142,26 @@ class DataBeanTest {
 	@Test
 	void testCheckValue() {
 		assertEquals(true, DataBean.newBean(KEY, VALUE).checkValue(KEY, VALUE));
+	}
+
+	/**
+	 * Test method for {@link accelerate.commons.data.DataBean#getDataMap()}
+	 */
+	@Test
+	void testGetDataMap() {
+		TestDataBean testDataBean = new TestDataBean();
+		testDataBean.setBeanId("1234");
+		testDataBean.setBeanValue("Value1234");
+		testDataBean.putAnd(KEY, VALUE);
+
+		// getDataMap
+		assertEquals(VALUE, testDataBean.getDataMap().get(KEY));
+
+		// JSONAnyGetter
+		assertEquals(VALUE, JsonPath.parse(testDataBean.toString()).read("$.key"));
+
+		// JSONAnySetter
+		assertEquals(VALUE, JSONUtils.deserialize(JSONUtils.buildJSON(KEY, VALUE), DataBean.class).get(KEY));
 	}
 
 	@SuppressWarnings({ "javadoc", "serial" })

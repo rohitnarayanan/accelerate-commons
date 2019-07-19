@@ -1,15 +1,10 @@
 package accelerate.commons.exception;
 
-import java.util.Collections;
-import java.util.Map;
-
 import org.slf4j.helpers.MessageFormatter;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import accelerate.commons.data.DataMap;
+import accelerate.commons.util.CommonUtils;
+import accelerate.commons.util.JSONUtils;
 
 /**
  * This is a simple {@link RuntimeException} extension providing wrapper methods
@@ -28,8 +23,6 @@ public class ApplicationException extends RuntimeException {
 	/**
 	 * custom data to be attached to the exception
 	 */
-	@JsonAnySetter
-	@JsonIgnore
 	private DataMap dataMap = DataMap.newMap();
 
 	/**
@@ -104,19 +97,17 @@ public class ApplicationException extends RuntimeException {
 	}
 
 	/**
-	 * @param <K>    Generic return type
 	 * @param aError see {@link #checkAndThrow(Exception, String, Object...)}
 	 * @return see {@link #checkAndThrow(Exception, String, Object...)}
 	 * @throws ApplicationException checks instance throws original or wrapped
 	 *                              exception
 	 */
-	public static <K> K checkAndThrow(Throwable aError) throws ApplicationException {
+	public static ApplicationException checkAndThrow(Throwable aError) throws ApplicationException {
 		throw (aError instanceof ApplicationException) ? (ApplicationException) aError
 				: new ApplicationException(aError);
 	}
 
 	/**
-	 * @param <K>          Generic return type
 	 * @param aError
 	 * @param aMessage
 	 * @param aMessageArgs
@@ -125,7 +116,7 @@ public class ApplicationException extends RuntimeException {
 	 * @throws ApplicationException checks instance throws original or wrapped
 	 *                              exception
 	 */
-	public static <K> K checkAndThrow(Throwable aError, String aMessage, Object... aMessageArgs)
+	public static ApplicationException checkAndThrow(Throwable aError, String aMessage, Object... aMessageArgs)
 			throws ApplicationException {
 		throw (aError instanceof ApplicationException) ? (ApplicationException) aError
 				: new ApplicationException(aError, aMessage, aMessageArgs);
@@ -136,9 +127,18 @@ public class ApplicationException extends RuntimeException {
 	 * 
 	 * @return dataMap
 	 */
-	@JsonAnyGetter
-	public Map<String, Object> getData() {
-		return Collections.unmodifiableMap(this.dataMap);
+	public DataMap getDataMap() {
+		return this.dataMap;
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @return
+	 * @see accelerate.commons.data.DataMap#get(java.lang.String)
+	 */
+	public <T> T get(String aKey) {
+		return this.dataMap.get(aKey);
 	}
 
 	/**
@@ -148,8 +148,33 @@ public class ApplicationException extends RuntimeException {
 	 * @see accelerate.commons.data.DataMap#putAnd(java.lang.String,
 	 *      java.lang.Object)
 	 */
-	@JsonAnySetter
-	public DataMap putAnd(String aKey, Object aValue) {
-		return this.dataMap.putAnd(aKey, aValue);
+	public ApplicationException putAnd(String aKey, Object aValue) {
+		this.dataMap.putAnd(aKey, aValue);
+		return this;
+	}
+
+	/**
+	 * @param aArgs
+	 * @return
+	 * @see accelerate.commons.data.DataMap#putAllAnd(Object...)
+	 */
+	public ApplicationException putAllAnd(Object... aArgs) {
+		for (int idx = 0; idx < aArgs.length; idx += 2) {
+			this.dataMap.put((String) aArgs[idx], aArgs[idx + 1]);
+		}
+
+		return this;
+	}
+
+	/**
+	 * This methods returns a JSON representation of this exception
+	 * 
+	 * @return
+	 * @throws ApplicationException thrown due to
+	 *                              {@link JSONUtils#serialize(Object)}
+	 */
+	public String toJSON() throws ApplicationException {
+		return JSONUtils.buildJSON("message", getMessage(), "stacktrace", CommonUtils.getErrorLog(this), "data",
+				getDataMap());
 	}
 }
