@@ -9,6 +9,7 @@ import static accelerate.commons.constant.CommonTestConstants.KEY;
 import static accelerate.commons.constant.CommonTestConstants.VALUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
@@ -65,9 +66,13 @@ class DataBeanTest {
 	void testAddJsonIgnoreFields() {
 		TestDataBean localTestDataBean = new TestDataBean();
 
+		localTestDataBean.addIgnoredFields(new String[] {});
 		localTestDataBean.addIgnoredFields(BEAN_ID_FIELD, BEAN_NAME_FIELD);
 		assertThrows(PathNotFoundException.class, () -> JsonPath.parse(localTestDataBean.toJSON()).read("$.beanValue"));
+		assertNotNull(localTestDataBean.toXML());
+		assertNotNull(localTestDataBean.toYAML());
 
+		localTestDataBean.removeIgnoredFields(new String[] {});
 		localTestDataBean.removeIgnoredFields(BEAN_NAME_FIELD);
 		assertEquals(BEAN_NAME_VALUE, JsonPath.parse(localTestDataBean.toJSON()).read("$." + BEAN_NAME_FIELD));
 

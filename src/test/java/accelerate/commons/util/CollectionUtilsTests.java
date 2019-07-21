@@ -121,7 +121,7 @@ class CollectionUtilsTests {
 	@Test
 	void testSort() {
 		assertFalse(CollectionUtils.sort(null));
-		assertFalse(CollectionUtils.sort(new ArrayList<>()));
+		assertFalse(CollectionUtils.sort(new ArrayList<String>()));
 
 		List<String> testList = CollectionUtils.toList("b", "a");
 		assertTrue(CollectionUtils.sort(testList));

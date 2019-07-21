@@ -3,7 +3,7 @@ plugins {
   id "jacoco"
 }
 
-apply from: "http://localproxy.localhost.com:4080/devops/java-build.gradle"
+apply from: "https://raw.githubusercontent.com/rohitnarayanan/gradle-scripts/master/java/java-build.gradle"
 
 /*
  * Dependencies
@@ -28,10 +28,4 @@ dependencies {
 	testImplementation ("org.junit.jupiter:junit-jupiter-engine")
 }
 
-jacocoTestReport {
-	reports {
-		xml.enabled false
-		csv.enabled false
-		html.destination file("${buildDir}/jacocoHtml")
-	}
-}
+test.finalizedBy jacocoTestReport

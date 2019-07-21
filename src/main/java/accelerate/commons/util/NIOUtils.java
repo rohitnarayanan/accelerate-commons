@@ -113,7 +113,7 @@ public final class NIOUtils {
 			return Paths.get(EMPTY_STRING);
 		}
 
-		if (aUpLevel == 0) {
+		if (aUpLevel <= 0) {
 			return aPath;
 		}
 
@@ -158,6 +158,10 @@ public final class NIOUtils {
 	 * @throws IOException
 	 */
 	public static Path rename(Path aPath, String aNewName) throws IOException {
+		if (aPath == null) {
+			return Paths.get(EMPTY_STRING);
+		}
+
 		if (CommonUtils.isEmpty(aNewName)) {
 			return aPath;
 		}

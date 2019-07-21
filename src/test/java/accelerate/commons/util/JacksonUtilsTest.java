@@ -2,6 +2,7 @@ package accelerate.commons.util;
 
 import static accelerate.commons.AccelerateCommonsTest.testDataBean;
 import static accelerate.commons.AccelerateCommonsTest.testDataMap;
+import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
 import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_FIELD;
 import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_VALUE;
 import static accelerate.commons.constant.CommonTestConstants.BEAN_NAME_FIELD;
@@ -86,6 +87,7 @@ class JacksonUtilsTest {
 	 */
 	@Test
 	void testToJSON() {
+		assertEquals(EMPTY_STRING, JacksonUtils.toJSON(null));
 		assertEquals(BEAN_ID_VALUE, JsonPath.parse(JacksonUtils.toJSON(testDataBean)).read("$." + BEAN_ID_FIELD));
 	}
 
@@ -114,6 +116,7 @@ class JacksonUtilsTest {
 	 */
 	@Test
 	void testToJSONExcludeFields() {
+		assertEquals(EMPTY_STRING, JacksonUtils.toJSONExcludeFields(null, BEAN_NAME_FIELD));
 		assertThrows(PathNotFoundException.class, () -> JsonPath
 				.parse(JacksonUtils.toJSONExcludeFields(testDataBean, BEAN_NAME_FIELD)).read("$." + BEAN_NAME_FIELD));
 	}
@@ -144,6 +147,8 @@ class JacksonUtilsTest {
 	 */
 	@Test
 	void testToJSONSelectFields() {
+		assertEquals(EMPTY_STRING, JacksonUtils.toJSONSelectFields(null, BEAN_NAME_FIELD));
+
 		DocumentContext context = JsonPath.parse(JacksonUtils.toJSONSelectFields(testDataBean, BEAN_ID_FIELD));
 		assertThrows(PathNotFoundException.class, () -> context.read("$." + BEAN_NAME_FIELD));
 		assertEquals(BEAN_ID_VALUE, context.read("$." + BEAN_ID_FIELD));

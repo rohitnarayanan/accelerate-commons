@@ -4,7 +4,9 @@ import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
 import static accelerate.commons.constant.CommonConstants.SPACE;
 import static accelerate.commons.constant.CommonTestConstants.KEY;
 import static accelerate.commons.constant.CommonTestConstants.VALUE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -84,6 +86,8 @@ class DataMapTest {
 	@Test
 	void testGetInt() {
 		assertEquals((Integer) 0, DataMap.newMap(KEY, 0).getInt(KEY));
+		assertEquals((Integer) 0, DataMap.newMap(KEY, Integer.valueOf(0)).getInt(KEY));
+		assertNull(DataMap.newMap(KEY, Integer.valueOf(0)).getInt("DUMMY"));
 	}
 
 	/**
@@ -115,5 +119,9 @@ class DataMapTest {
 
 		assertEquals(expected, dataMap.toJSON().replaceAll(SPACE, EMPTY_STRING));
 		assertEquals(expected, dataMap.toString().replaceAll(SPACE, EMPTY_STRING));
+		assertThat(dataMap.toJSON()).contains("\"key\":");
+		assertThat(dataMap.toString()).contains("\"key\":");
+		assertThat(dataMap.toXML()).contains("<Data>");
+		assertThat(dataMap.toYAML()).contains("key:");
 	}
 }

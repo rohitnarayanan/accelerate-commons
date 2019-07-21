@@ -4,10 +4,14 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
+import accelerate.commons.AccelerateCommonsTest;
 import accelerate.commons.data.DataMap;
 import accelerate.commons.exception.ApplicationException;
 
@@ -21,10 +25,41 @@ import accelerate.commons.exception.ApplicationException;
 @SuppressWarnings("static-method")
 class CommonUtilsTests {
 	/**
+	 * Test method for {@link CommonUtils#getAdjustedIndex(int, int)}.
+	 */
+	@Test
+	void testGetAdjustedIndex() {
+		assertEquals(0, CommonUtils.getAdjustedIndex(0, 5));
+		assertEquals(4, CommonUtils.getAdjustedIndex(-1, 5));
+		assertEquals(0, CommonUtils.getAdjustedIndex(-6, 5));
+
+		assertEquals(5, CommonUtils.getAdjustedIndex(6, 5));
+	}
+
+	/**
+	 * Test method for {@link CommonUtils#isEmpty(Object)}.
+	 */
+	@Test
+	void testIsEmpty() {
+		assertTrue(CommonUtils.isEmpty(null));
+
+		assertTrue(CommonUtils.isEmpty(Optional.empty()));
+		assertFalse(CommonUtils.isEmpty(Optional.of(true)));
+
+		assertTrue(CommonUtils.isEmpty(new StringBuilder()));
+		assertTrue(CommonUtils.isEmpty(new String[] {}));
+		assertTrue(CommonUtils.isEmpty(new ArrayList<>()));
+		assertTrue(CommonUtils.isEmpty(new HashMap<>()));
+
+		assertFalse(CommonUtils.isEmpty(AccelerateCommonsTest.testDataMap));
+	}
+
+	/**
 	 * Test method for {@link CommonUtils#isEmptyAny(java.lang.Object[])}.
 	 */
 	@Test
 	void testIsEmptyAny() {
+		assertTrue(CommonUtils.isEmptyAny((Object[]) null));
 		assertTrue(CommonUtils.isEmptyAny("a", null, "b"));
 		assertFalse(CommonUtils.isEmptyAny("a", "b"));
 	}
@@ -34,6 +69,7 @@ class CommonUtilsTests {
 	 */
 	@Test
 	void testIsEmptyAll() {
+		assertTrue(CommonUtils.isEmptyAll((Object[]) null));
 		assertTrue(CommonUtils.isEmptyAll(null, ""));
 		assertFalse(CommonUtils.isEmptyAll("a", ""));
 	}
@@ -74,13 +110,7 @@ class CommonUtilsTests {
 	 */
 	@Test
 	void testCompareAnyArray() {
-		/*
-		 * No test required as all logic is in {@link CommonUtils#compareAny(Object,
-		 * List)}. This method simply convert the array to list and delegates. The
-		 * conversion is already tested as part of {@link
-		 * CollectionUtils#toList(Object...)}
-		 */
-		assertTrue(true);
+		assertTrue(CommonUtils.compareAny("a", "a", "b", "c", "d"));
 	}
 
 	/**

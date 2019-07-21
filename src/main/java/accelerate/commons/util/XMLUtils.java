@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
@@ -114,7 +115,7 @@ public final class XMLUtils {
 			transformer.transform(source, result);
 
 			return result.getWriter().toString();
-		} catch (Exception error) {
+		} catch (TransformerException error) {
 			throw new ApplicationException(error);
 		}
 	}

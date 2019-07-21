@@ -1,14 +1,12 @@
 package accelerate.commons;
 
-import static accelerate.commons.constant.CommonTestConstants.BEAN_NAME_FIELD;
 import static accelerate.commons.constant.CommonTestConstants.KEY;
 import static accelerate.commons.constant.CommonTestConstants.VALUE;
 
 import accelerate.commons.data.DataBean;
 import accelerate.commons.data.DataMap;
 import accelerate.commons.data.TestDataBean;
-import accelerate.commons.util.XMLUtils;
-import accelerate.commons.util.XMLUtilsTests;
+import accelerate.commons.exception.ApplicationException;
 
 /**
  * Basic test class for this project
@@ -33,7 +31,7 @@ public class AccelerateCommonsTest {
 	 */
 	public static void main(String[] args) {
 		try {
-			System.out.println(XMLUtils.xPathNode("/TestDataBean/" + BEAN_NAME_FIELD, XMLUtilsTests.testXMLDocument));
+			System.out.println(new ApplicationException(null, null, false, false).getSuppressed().length);
 		} catch (Exception error) {
 			error.printStackTrace();
 		}

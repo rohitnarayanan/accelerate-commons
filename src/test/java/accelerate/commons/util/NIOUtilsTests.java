@@ -4,15 +4,19 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import accelerate.commons.exception.ApplicationException;
 
 /**
  * {@link Test} class for {@link NIOUtils}
@@ -70,6 +74,8 @@ class NIOUtilsTests {
 	@Test
 	void testGetParent() {
 		assertTrue(NIOUtils.getParent(null, 0).toString().isEmpty());
+		assertEquals("/tmp/tmp.log", NIOUtils.getPathString(NIOUtils.getParent(Paths.get("/tmp/tmp.log"), -1)));
+
 		assertEquals("/parent1",
 				NIOUtils.getPathString(NIOUtils.getParent(Paths.get("/parent1/parent2/parent3/tmp.log"), 2)));
 		assertEquals("/", NIOUtils.getPathString(NIOUtils.getParent(Paths.get("/parent1/parent2/parent3/tmp.log"), 6)));
@@ -98,11 +104,14 @@ class NIOUtilsTests {
 		Files.createFile(testPath);
 
 		// test the method
-		testPath = NIOUtils.rename(testPath, "");
-		assertEquals("rename", NIOUtils.getBaseName(testPath));
+		Path renamePath = NIOUtils.rename(null, "");
+		assertEquals("", renamePath.toString());
 
-		testPath = NIOUtils.rename(testPath, "testRename");
-		assertTrue(Files.exists(testPath));
+		renamePath = NIOUtils.rename(testPath, "");
+		assertEquals("rename", NIOUtils.getBaseName(renamePath));
+
+		renamePath = NIOUtils.rename(testPath, "testRename");
+		assertTrue(Files.exists(renamePath));
 
 		// cleanup
 		Files.deleteIfExists(testPath);
@@ -150,7 +159,18 @@ class NIOUtilsTests {
 	 */
 	@Test
 	void testWalkFileTree() {
-		// to be implemented
+		Map<String, Path> fileMap = NIOUtils.walkFileTree(tempPath,
+				aDir -> !aDir.getFileName().toString().contains("tmp"), (aDir, aAttributes) -> FileVisitResult.CONTINUE,
+				(aDir, aException) -> FileVisitResult.CONTINUE, aPath -> NIOUtils.getFileExtn(aPath).equals("log"),
+				aPath -> FileVisitResult.CONTINUE, (aPath, aFileVisitResult) -> {
+					try {
+						return Files.size(aPath) > 0;
+					} catch (IOException error) {
+						throw new ApplicationException(error);
+					}
+				});
+
+		assertTrue(fileMap.size() >= 0, "Should pick up any log files present in the temp directory");
 	}
 
 	/**

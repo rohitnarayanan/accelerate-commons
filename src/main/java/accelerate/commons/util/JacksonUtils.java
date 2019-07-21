@@ -365,8 +365,8 @@ public final class JacksonUtils {
 	 * @return
 	 * @throws ApplicationException
 	 */
-	protected static <C extends Object, T extends ObjectMapper> C deserialize(String aString, Class<C> aClass,
-			T aMapper) throws ApplicationException {
+	private static <C extends Object, T extends ObjectMapper> C deserialize(String aString, Class<C> aClass, T aMapper)
+			throws ApplicationException {
 		if (StringUtils.isEmpty(aString)) {
 			return null;
 		}
@@ -413,7 +413,7 @@ public final class JacksonUtils {
 	 * @since July 17, 2019
 	 */
 	@JsonFilter("PropertyFilter")
-	abstract class PropertyFilterMixIn {
+	private abstract class PropertyFilterMixIn {
 		// empty class
 	}
 

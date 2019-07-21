@@ -5,10 +5,13 @@ import static accelerate.commons.constant.CommonTestConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
 import com.jayway.jsonpath.JsonPath;
+
+import accelerate.commons.util.CommonUtils;
 
 /**
  * PUT DESCRIPTION HERE
@@ -50,7 +53,10 @@ class ApplicationExceptionTest {
 	 */
 	@Test
 	void testApplicationExceptionStringThrowableBooleanBoolean() {
-		// to be implemented
+		ApplicationException testException = new ApplicationException("testCheckAndThrowThrowable",
+				new NullPointerException(), false, false);
+		assertTrue(CommonUtils.isEmpty(testException.getStackTrace()));
+		assertTrue(CommonUtils.isEmpty(testException.getSuppressed()));
 	}
 
 	/**
@@ -72,7 +78,6 @@ class ApplicationExceptionTest {
 
 		assertThrows(ApplicationException.class, () -> ApplicationException.checkAndThrow(new NullPointerException()));
 
-		testException = new ApplicationException("testCheckAndThrowThrowable");
 		try {
 			ApplicationException.checkAndThrow(new NullPointerException(), "message: {}", "test");
 		} catch (ApplicationException error) {

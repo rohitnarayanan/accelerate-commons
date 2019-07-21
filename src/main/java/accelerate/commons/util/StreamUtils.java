@@ -1,5 +1,7 @@
 package accelerate.commons.util;
 
+import static accelerate.commons.constant.CommonConstants.UNIX_PATH_SEPARATOR;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +10,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.function.Function;
 
-import accelerate.commons.constant.CommonConstants;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import accelerate.commons.exception.ApplicationException;
 
 /**
@@ -26,9 +30,11 @@ public class StreamUtils {
 	 * @return
 	 */
 	public static <T> T loadInputStream(String aSourcePath, Function<InputStream, T> aStreamProcessor) {
+		LOGGER.debug("Loading stream from [{}]", aSourcePath);
+
 		String sourcePath = StringUtils.trim(aSourcePath);
 		URL resourceURL = null;
-		if (sourcePath.startsWith(CommonConstants.UNIX_PATH_SEPARATOR)) {
+		if (sourcePath.startsWith(UNIX_PATH_SEPARATOR)) {
 			resourceURL = ConfigurationUtils.class.getResource(sourcePath);
 		} else if (sourcePath.startsWith("classpath:")) {
 			resourceURL = ConfigurationUtils.class.getResource(sourcePath.substring(10));
@@ -38,6 +44,10 @@ public class StreamUtils {
 			} catch (MalformedURLException error) {
 				throw new ApplicationException(error);
 			}
+		}
+
+		if (resourceURL == null) {
+			throw new ApplicationException("Classpath resource not found: {}", aSourcePath);
 		}
 
 		try (InputStream inputStream = resourceURL.openStream()) {
@@ -52,6 +62,8 @@ public class StreamUtils {
 	 * @return
 	 */
 	public static String readInputStream(String aSourcePath) {
+		LOGGER.debug("Reading stream from [{}]", aSourcePath);
+
 		return loadInputStream(aSourcePath, aInputStream -> {
 			StringBuilder buffer = new StringBuilder();
 			try (BufferedReader reader = new BufferedReader(new InputStreamReader(aInputStream))) {
@@ -65,5 +77,16 @@ public class StreamUtils {
 
 			return buffer.toString();
 		});
+	}
+
+	/**
+	 * {@link Logger} instance
+	 */
+	private static final Logger LOGGER = LoggerFactory.getLogger(StreamUtils.class);
+
+	/**
+	 * hidden constructor
+	 */
+	private StreamUtils() {
 	}
 }
