@@ -93,14 +93,13 @@ public final class StringUtils {
 	 * @return
 	 */
 	public static String capitalize(CharSequence aString) {
-		int length = length(aString);
-		if (length == 0) {
+		String value = trim(aString);
+
+		if (isEmpty(value)) {
 			return EMPTY_STRING;
 		}
 
-		String value = aString.toString();
-
-		if (length == 1) {
+		if (value.length() == 1) {
 			return value.toUpperCase();
 		}
 

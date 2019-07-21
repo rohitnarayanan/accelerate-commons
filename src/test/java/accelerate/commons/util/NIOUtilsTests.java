@@ -22,7 +22,7 @@ import org.slf4j.LoggerFactory;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class NIOUtilsTests {
+class NIOUtilsTests {
 	/**
 	 * {@link Path} for temp directory
 	 */
@@ -98,6 +98,9 @@ public class NIOUtilsTests {
 		Files.createFile(testPath);
 
 		// test the method
+		testPath = NIOUtils.rename(testPath, "");
+		assertEquals("rename", NIOUtils.getBaseName(testPath));
+
 		testPath = NIOUtils.rename(testPath, "testRename");
 		assertTrue(Files.exists(testPath));
 

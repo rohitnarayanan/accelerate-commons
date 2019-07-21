@@ -1,8 +1,14 @@
 package accelerate.commons.util;
 
+import static accelerate.commons.constant.CommonConstants.COMMA;
+import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
+
+import accelerate.commons.constant.CommonConstants;
 
 /**
  * {@link Test} class for {@link StringUtils}
@@ -12,13 +18,15 @@ import org.junit.jupiter.api.Test;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class StringUtilsTests {
+class StringUtilsTests {
 	/**
 	 * Test method for {@link StringUtils#trim(CharSequence)}.
 	 */
 	@Test
 	void testTrim() {
-		assertTrue(true);
+		assertEquals("testTrim", StringUtils.trim(" testTrim "));
+		assertEquals("test Trim", StringUtils.trim(" test Trim "));
+		assertEquals("", StringUtils.trim(null));
 	}
 
 	/**
@@ -26,7 +34,9 @@ public class StringUtilsTests {
 	 */
 	@Test
 	void testIsEmpty() {
-		assertTrue(true);
+		assertTrue(StringUtils.isEmpty(" "));
+		assertTrue(StringUtils.isEmpty(null));
+		assertFalse(StringUtils.isEmpty("testIsEmpty"));
 	}
 
 	/**
@@ -34,7 +44,9 @@ public class StringUtilsTests {
 	 */
 	@Test
 	void testLength() {
-		assertTrue(true);
+		assertEquals(10, StringUtils.length("testLength"));
+		assertEquals(10, StringUtils.length(" testLength "));
+		assertEquals(0, StringUtils.length(null));
 	}
 
 	/**
@@ -42,7 +54,8 @@ public class StringUtilsTests {
 	 */
 	@Test
 	void testToUpperCase() {
-		assertTrue(true);
+		assertEquals("TESTTOUPPERCASE", StringUtils.toUpperCase(" testToUpperCase "));
+		assertEquals("TESTTOUPPERCASE", StringUtils.toUpperCase("testToUpperCase"));
 	}
 
 	/**
@@ -50,7 +63,8 @@ public class StringUtilsTests {
 	 */
 	@Test
 	void testToLowerCase() {
-		assertTrue(true);
+		assertEquals("testtolowercase", StringUtils.toLowerCase(" testToLowerCase "));
+		assertEquals("testtolowercase", StringUtils.toLowerCase("testToLowerCase"));
 	}
 
 	/**
@@ -58,7 +72,7 @@ public class StringUtilsTests {
 	 */
 	@Test
 	void testSplit() {
-		assertTrue(true);
+		assertEquals("c", StringUtils.split(" a,b,c ", COMMA)[2]);
 	}
 
 	/**
@@ -67,7 +81,8 @@ public class StringUtilsTests {
 	 */
 	@Test
 	void testDefaultString() {
-		assertTrue(true);
+		assertEquals("testString", StringUtils.defaultString("testString", "testDefaultString"));
+		assertEquals("testDefaultString", StringUtils.defaultString(null, "testDefaultString"));
 	}
 
 	/**
@@ -75,6 +90,8 @@ public class StringUtilsTests {
 	 */
 	@Test
 	void testCapitalize() {
-		assertTrue(true);
+		assertEquals(EMPTY_STRING, StringUtils.capitalize(null));
+		assertEquals("T", StringUtils.capitalize("t  "));
+		assertEquals("TestCapitalize", StringUtils.capitalize("testCapitalize"));
 	}
 }

@@ -14,12 +14,12 @@ import org.junit.jupiter.api.Test;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class ReflectionUtilsTests {
+class ReflectionUtilsTests {
 	/**
-	 * Test method for {@link ReflectionUtils#getFieldValue(Class, Object, String)}.
+	 * Test method for {@link ReflectionUtils#getFieldValue(Object, String)}.
 	 */
 	@Test
-	void testGetFieldValueClassOfQObjectString() {
+	void testGetFieldValueObjectString() {
 		assertTrue(true);
 	}
 

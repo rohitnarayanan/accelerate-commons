@@ -15,7 +15,7 @@ import accelerate.commons.exception.ApplicationException;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class ConfigurationUtilsTests {
+class ConfigurationUtilsTests {
 	/**
 	 * Test method for {@link ConfigurationUtils#loadPropertyFile(String)}.
 	 */

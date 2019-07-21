@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class DateTimeUtilsTests {
+class DateTimeUtilsTests {
 	/**
 	 * Test method for {@link DateTimeUtils#convertToTime(long)}.
 	 */

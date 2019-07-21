@@ -1,6 +1,8 @@
 package accelerate.commons.util;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import java.io.File;
 
 import org.junit.jupiter.api.Test;
 
@@ -12,13 +14,16 @@ import org.junit.jupiter.api.Test;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class RuntimeUtilsTests {
+class RuntimeUtilsTests {
 	/**
 	 * Test method for
 	 * {@link RuntimeUtils#executeOSCommand(String, String[], java.io.File)}.
 	 */
 	@Test
 	void testExecuteOSCommand() {
-		assertTrue(true);
+		assertEquals("testExecuteOSCommand", RuntimeUtils.executeOSCommand("echo testExecuteOSCommand", null, null));
+
+		assertEquals("testExecuteOSCommand", RuntimeUtils.executeOSCommand("echo testExecuteOSCommand", null,
+				new File(System.getProperty("user.home"))));
 	}
 }

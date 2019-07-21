@@ -1,117 +1,37 @@
 plugins {
   id "org.springframework.boot" version "2.1.6.RELEASE"
+  id "jacoco"
 }
 
-apply plugin: "io.spring.dependency-management"
-apply plugin: "java-library"
-apply plugin: "maven"
-apply plugin: "eclipse"
-apply plugin: "eclipse-wtp"
-
-
-/*
- * Configuration
- */
-repositories {
-	jcenter()
-	mavenLocal()
-}
-
-configurations {
-	developmentOnly
-	runtimeClasspath {
-		extendsFrom developmentOnly
-	}
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
+apply from: "http://localproxy.localhost.com:4080/devops/java-build.gradle"
 
 /*
  * Dependencies
  */
 dependencies {
-	// This dependency is exported to consumers, that is to say found on their compile classpath.
 	implementation("org.slf4j:slf4j-api")
+	
 	implementation("com.fasterxml.jackson.core:jackson-databind")
+	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-properties")
+	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
+	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
 	implementation("org.yaml:snakeyaml")
+	
 	implementation("javax.servlet:javax.servlet-api")
-	implementation ("javax.xml.bind:jaxb-api")
-  
+	implementation("javax.xml.bind:jaxb-api")
+	//compile('javax.activation:javax.activation-api:1.1')
+	//implementation("org.glassfish.jaxb:jaxb-runtime")
+
 	testImplementation ("org.springframework.boot:spring-boot-starter-test") {
 		exclude group: "junit" 
 	}
 	testImplementation ("org.junit.jupiter:junit-jupiter-engine")
 }
 
-
-/*
- * Build Settings
- */
- compileJava {
-	sourceCompatibility = javaVersion
-	targetCompatibility = javaVersion
-	
-    options.compilerArgs += ["-Xlint:unchecked"]
-}
- 
-test {
-	useJUnitPlatform()
-}
-
-bootJar {
-    enabled = false
-}
-
-def buildTimestamp = new Date().format("yyyyMMdd-hhmmss");
-jar {
-	from (sourceSets.main.allSource) {
-		include '**/*.java'
-	}
-	
-	manifest {
-		attributes (
-			"build-version": version,
-			"build-timestamp": buildTimestamp,
-			"gradle-version": gradleVersion,
-			"java-version": javaVersion,
-			"spring-boot-version": springBootVersion
-		)
-	}
-}
-
-//build.finalizedBy install
-
-
-/*
- * Eclipse settings
- */
-eclipse {
-	project {
-		natures = ["org.eclipse.jdt.core.javanature", "org.eclipse.wst.common.project.facet.core.nature", "org.eclipse.buildship.core.gradleprojectnature"]
-		
-		buildCommand "org.eclipse.jdt.core.javabuilder"
-		buildCommand "org.eclipse.wst.common.project.facet.core.builder"
-		buildCommand "org.eclipse.buildship.core.gradleprojectbuilder"
-	}
-	
-	jdt {
-		sourceCompatibility = javaVersion
-		targetCompatibility = javaVersion
-		javaRuntimeName = "JavaSE-" + javaVersion
-		/*
-		file {
-			withProperties { properties ->
-				properties.put("org.eclipse.jdt.core.compiler.processAnnotations", "disabled")
-				properties.put("org.eclipse.jdt.core.compiler.codegen.targetPlatform", javaVersion)
-			}
-		}
-		*/
-	}
-	
-	wtp {
-		facet {
-			facets = []
-		}
+jacocoTestReport {
+	reports {
+		xml.enabled false
+		csv.enabled false
+		html.destination file("${buildDir}/jacocoHtml")
 	}
 }

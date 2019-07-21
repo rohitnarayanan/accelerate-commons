@@ -11,7 +11,7 @@ import com.fasterxml.jackson.annotation.JsonAnySetter;
 
 import accelerate.commons.exception.ApplicationException;
 import accelerate.commons.util.CommonUtils;
-import accelerate.commons.util.JSONUtils;
+import accelerate.commons.util.JacksonUtils;
 
 /**
  * Generic Data Bean class with embedded {@link DataMap} for extensibility
@@ -27,17 +27,6 @@ public class DataBean implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Name of the id field for the bean
-	 */
-	private transient String idField;
-
-//	/**
-//	 * Flag to indicate that the bean stores a huge amount of data, so exception
-//	 * handlers and interceptors can avoid serializing the entire bean
-//	 */
-//	private transient boolean largeDataset;
-
-	/**
 	 * Instance of {@link DataMap} for generic storage
 	 */
 	@JsonAnySetter
@@ -46,7 +35,7 @@ public class DataBean implements Serializable {
 	/**
 	 * {@link Set} to include names of fields to exclude while serializing
 	 */
-	protected transient Set<String> jsonIgnoreFields = Collections.emptySet();
+	protected transient Set<String> ignoredFields = Collections.emptySet();
 
 	/*
 	 * Static Methods
@@ -72,15 +61,6 @@ public class DataBean implements Serializable {
 	public DataBean() {
 	}
 
-	/**
-	 * alternate constructor to set id field
-	 * 
-	 * @param aIdField
-	 */
-	public DataBean(String aIdField) {
-		this.idField = aIdField;
-	}
-
 	/*
 	 * Public API
 	 */
@@ -95,76 +75,104 @@ public class DataBean implements Serializable {
 	}
 
 	/**
-	 * This method registers the aFieldName as a field to be excluded from logging
+	 * This method registers the aFieldName as a field to be excluded from
+	 * serialization
 	 *
 	 * @param aFieldNames
 	 */
-	public synchronized void addJsonIgnoreFields(String... aFieldNames) {
-		if (this.jsonIgnoreFields == Collections.EMPTY_SET) {
-			this.jsonIgnoreFields = new HashSet<>();
+	public synchronized void addIgnoredFields(String... aFieldNames) {
+		if (this.ignoredFields == Collections.EMPTY_SET) {
+			this.ignoredFields = new HashSet<>();
 		}
 
 		for (String field : aFieldNames) {
-			this.jsonIgnoreFields.add(field);
+			this.ignoredFields.add(field);
 		}
 	}
 
 	/**
-	 * This method registers the aFieldName as a field to be excluded from logging
+	 * This method remove a FieldName from the serialzation exclusion list
 	 *
 	 * @param aFieldNames
 	 */
-	public synchronized void removeJsonIgnoreFields(String... aFieldNames) {
-		if (this.jsonIgnoreFields.isEmpty()) {
+	public synchronized void removeIgnoredFields(String... aFieldNames) {
+		if (this.ignoredFields.isEmpty()) {
 			return;
 		}
 
 		for (String field : aFieldNames) {
-			this.jsonIgnoreFields.remove(field);
+			this.ignoredFields.remove(field);
 		}
+	}
+
+	/**
+	 * This method clears out the serialzation exclusion list
+	 */
+	public synchronized void clearIgnoredFields() {
+		this.ignoredFields.clear();
 	}
 
 	/**
 	 * This methods returns a JSON representation of this bean
 	 *
 	 * @return JSON Representation
-	 * @throws ApplicationException thrown due to {@link #toJSON(boolean)}
+	 * @throws ApplicationException
 	 */
 	public String toJSON() throws ApplicationException {
-		return toJSON(false);
+		return serialize(0);
+	}
+
+	/**
+	 * This methods returns a JSON representation of this bean
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException
+	 */
+	public String toXML() throws ApplicationException {
+		return serialize(1);
+	}
+
+	/**
+	 * This methods returns a JSON representation of this bean
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException
+	 */
+	public String toYAML() throws ApplicationException {
+		return serialize(2);
 	}
 
 	/**
 	 * This methods returns a JSON representation of this bean
 	 * 
-	 * @param aForce
+	 * @param aMode
+	 *              <dd>0 or any other input: JSON</dd>
+	 *              <dd>1: XML</dd>
+	 *              <dd>2: YAML</dd>
 	 * @return
-	 * @throws ApplicationException thrown due to
-	 *                              {@link JSONUtils#serialize(Object)}
+	 * @throws ApplicationException
 	 */
-	public String toJSON(@SuppressWarnings("unused") boolean aForce) throws ApplicationException {
-//		if (this.largeDataset && !aForce) {
-//			return toShortJSON();
-//		}
-
-		if (this.jsonIgnoreFields.isEmpty()) {
-			return JSONUtils.serialize(this);
+	private String serialize(int aMode) throws ApplicationException {
+		if (this.ignoredFields.isEmpty()) {
+			switch (aMode) {
+			case 1:
+				return JacksonUtils.toXML(this);
+			case 2:
+				return JacksonUtils.toYAML(this);
+			default:
+				return JacksonUtils.toJSON(this);
+			}
 		}
 
-		return JSONUtils.serializeExcept(this, this.jsonIgnoreFields.toArray(new String[this.jsonIgnoreFields.size()]));
-	}
-
-	/**
-	 * This method return a short JSON representation of this bean to save memory or
-	 * disk space
-	 *
-	 * @return log string
-	 * @throws ApplicationException thrown due to
-	 *                              {@link JSONUtils#serialize(Object)}
-	 */
-	public String toShortJSON() throws ApplicationException {
-		return (this.idField != null) ? JSONUtils.serializeOnly(this, this.idField)
-				: JSONUtils.buildJSON("id", super.toString());
+		String[] excludedFieldArray = this.ignoredFields.toArray(new String[this.ignoredFields.size()]);
+		switch (aMode) {
+		case 1:
+			return JacksonUtils.toXMLExcludeFields(this, excludedFieldArray);
+		case 2:
+			return JacksonUtils.toYAMLExcludeFields(this, excludedFieldArray);
+		default:
+			return JacksonUtils.toJSONExcludeFields(this, excludedFieldArray);
+		}
 	}
 
 	/*
@@ -177,7 +185,7 @@ public class DataBean implements Serializable {
 	 */
 	/**
 	 * @return
-	 * @throws ApplicationException thrown due to {@link #toJSON()}
+	 * @throws ApplicationException
 	 */
 	@Override
 	public String toString() throws ApplicationException {

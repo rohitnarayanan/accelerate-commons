@@ -1,8 +1,11 @@
 package accelerate.commons.util;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.io.InputStream;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_FIELD;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_VALUE;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_NAME_FIELD;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_NAME_VALUE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -18,11 +21,28 @@ import org.w3c.dom.Node;
 @SuppressWarnings("static-method")
 public class XMLUtilsTests {
 	/**
-	 * Test method for {@link XMLUtils#loadXML(InputStream)}.
+	 * {@link Document} instance for this test class
+	 */
+	public static final Document testXMLDocument = XMLUtils
+			.loadXML("classpath:/accelerate/commons/util/XMLUtilsTests.xml");
+
+	/**
+	 * Test method for {@link XMLUtils#loadXML(String)}.
 	 */
 	@Test
 	void testLoadXML() {
-		assertTrue(true);
+		assertEquals("TestDataBean", XMLUtils.loadXML("classpath:/accelerate/commons/util/XMLUtilsTests.xml")
+				.getDocumentElement().getNodeName());
+	}
+
+	/**
+	 * Test method for {@link XMLUtils#stringToXML(String)}.
+	 */
+	@Test
+	void testStringToXML() {
+		assertEquals("TestDataBean", XMLUtils
+				.stringToXML(StreamUtils.readInputStream("classpath:/accelerate/commons/util/XMLUtilsTests.xml"))
+				.getDocumentElement().getNodeName());
 	}
 
 	/**
@@ -30,46 +50,39 @@ public class XMLUtilsTests {
 	 */
 	@Test
 	void testSerialzeXML() {
-		assertTrue(true);
+		assertThat(XMLUtils.serialzeXML(testXMLDocument)).contains("</TestDataBean>");
 	}
 
 	/**
-	 * Test method for {@link XMLUtils#unmarshalXML(Class, String)}.
+	 * Test method for {@link XMLUtils#xPathNodeList(String, Node)}.
 	 */
 	@Test
-	void testUnmarshalXML() {
-		assertTrue(true);
+	void testXPathNodeList() {
+		assertEquals(1, XMLUtils.xPathNodeList("/TestDataBean", testXMLDocument).getLength());
 	}
 
 	/**
-	 * Test method for {@link XMLUtils#queryNodeSet(String, Node)}.
+	 * Test method for {@link XMLUtils#xPathNode(String, Node)}.
 	 */
 	@Test
-	void testQueryNodes() {
-		assertTrue(true);
+	void testXPathNode() {
+		assertEquals(BEAN_NAME_FIELD,
+				XMLUtils.xPathNode("/TestDataBean/" + BEAN_NAME_FIELD, testXMLDocument).getNodeName());
 	}
 
 	/**
-	 * Test method for {@link XMLUtils#queryNode(String, Node)}.
+	 * Test method for {@link XMLUtils#xPathNodeValue(String, Node)}.
 	 */
 	@Test
-	void testQueryNode() {
-		assertTrue(true);
+	void testXPathNodeValue() {
+		assertEquals(BEAN_NAME_VALUE, XMLUtils.xPathNodeValue("/TestDataBean/" + BEAN_NAME_FIELD, testXMLDocument));
 	}
 
 	/**
-	 * Test method for {@link XMLUtils#queryValue(String, Node)}.
+	 * Test method for {@link XMLUtils#xPathNodeAttribute(String, String, Node)}.
 	 */
 	@Test
-	void testQueryValue() {
-		assertTrue(true);
-	}
-
-	/**
-	 * Test method for {@link XMLUtils#queryAttribute(String, String, Node)}.
-	 */
-	@Test
-	void testQueryAttribute() {
-		assertTrue(true);
+	void testXPathNodeAttribute() {
+		assertEquals(BEAN_ID_VALUE, XMLUtils.xPathNodeAttribute("/TestDataBean", BEAN_ID_FIELD, testXMLDocument));
 	}
 }

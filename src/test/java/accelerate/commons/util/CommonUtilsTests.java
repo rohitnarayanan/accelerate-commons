@@ -19,7 +19,7 @@ import accelerate.commons.exception.ApplicationException;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class CommonUtilsTests {
+class CommonUtilsTests {
 	/**
 	 * Test method for {@link CommonUtils#isEmptyAny(java.lang.Object[])}.
 	 */

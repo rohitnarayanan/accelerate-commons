@@ -3,10 +3,12 @@ package accelerate.commons.data;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
+
 import accelerate.commons.constant.CommonConstants;
 import accelerate.commons.exception.ApplicationException;
 import accelerate.commons.util.CommonUtils;
-import accelerate.commons.util.JSONUtils;
+import accelerate.commons.util.JacksonUtils;
 
 /**
  * {@link HashMap} extension with overloaded methods for easy loading, method
@@ -16,6 +18,7 @@ import accelerate.commons.util.JSONUtils;
  * @author Rohit Narayanan
  * @since January 14, 2015
  */
+@JacksonXmlRootElement(localName = "Data")
 public class DataMap extends HashMap<String, Object> {
 	/**
 	 * serialVersionUID
@@ -138,14 +141,54 @@ public class DataMap extends HashMap<String, Object> {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this Map
-	 * 
-	 * @return
-	 * @throws ApplicationException thrown due to
-	 *                              {@link JSONUtils#serialize(Object)}
+	 * This methods returns a JSON representation of this bean
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException
 	 */
 	public String toJSON() throws ApplicationException {
-		return JSONUtils.serialize(this);
+		return serialize(0);
+	}
+
+	/**
+	 * This methods returns a JSON representation of this bean
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException
+	 */
+	public String toXML() throws ApplicationException {
+		return serialize(1);
+	}
+
+	/**
+	 * This methods returns a JSON representation of this bean
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException
+	 */
+	public String toYAML() throws ApplicationException {
+		return serialize(2);
+	}
+
+	/**
+	 * This methods returns a JSON representation of this bean
+	 * 
+	 * @param aMode
+	 *              <dd>0 or any other input: JSON</dd>
+	 *              <dd>1: XML</dd>
+	 *              <dd>2: YAML</dd>
+	 * @return
+	 * @throws ApplicationException
+	 */
+	private String serialize(int aMode) throws ApplicationException {
+		switch (aMode) {
+		case 1:
+			return JacksonUtils.toXML(this);
+		case 2:
+			return JacksonUtils.toYAML(this);
+		default:
+			return JacksonUtils.toJSON(this);
+		}
 	}
 
 	/*

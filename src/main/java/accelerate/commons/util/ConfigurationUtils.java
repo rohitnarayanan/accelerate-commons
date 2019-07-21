@@ -1,9 +1,6 @@
 package accelerate.commons.util;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.Map;
 import java.util.Properties;
 
@@ -30,30 +27,18 @@ public final class ConfigurationUtils {
 			throw new ApplicationException("Parameter ConfigPath is required");
 		}
 
-		String configPath = StringUtils.trim(aConfigPath);
-		URL resourceURL = null;
-		if (configPath.startsWith(CommonConstants.UNIX_PATH_SEPARATOR)) {
-			resourceURL = ConfigurationUtils.class.getResource(configPath);
-		} else if (configPath.startsWith("classpath:")) {
-			resourceURL = ConfigurationUtils.class.getResource(configPath.substring(10));
-		} else {
+		final DataMap configMap = DataMap.newMap();
+		return StreamUtils.loadInputStream(aConfigPath, aInputStream -> {
 			try {
-				resourceURL = new URL(configPath);
-			} catch (MalformedURLException error) {
+				Properties props = new Properties();
+				props.load(aInputStream);
+				props.forEach((aKey, aValue) -> configMap.put(aKey.toString(), aValue.toString()));
+
+				return configMap;
+			} catch (IOException error) {
 				throw new ApplicationException(error);
 			}
-		}
-
-		Properties properties = new Properties();
-		DataMap configMap = DataMap.newMap();
-		try (InputStream inputStream = resourceURL.openStream()) {
-			properties.load(inputStream);
-			properties.forEach((aKey, aValue) -> configMap.put(aKey.toString(), aValue.toString()));
-		} catch (IOException error) {
-			throw new ApplicationException(error);
-		}
-
-		return configMap;
+		});
 	}
 
 	/**
@@ -65,30 +50,14 @@ public final class ConfigurationUtils {
 			throw new ApplicationException("Parameter ConfigPath is required");
 		}
 
-		String configPath = StringUtils.trim(aConfigPath);
-		URL resourceURL = null;
-		if (configPath.startsWith(CommonConstants.UNIX_PATH_SEPARATOR)) {
-			resourceURL = ConfigurationUtils.class.getResource(configPath);
-		} else if (configPath.startsWith("classpath:")) {
-			resourceURL = ConfigurationUtils.class.getResource(configPath.substring(10));
-		} else {
-			try {
-				resourceURL = new URL(configPath);
-			} catch (MalformedURLException error) {
-				throw new ApplicationException(error);
-			}
-		}
-
-		Yaml yaml = new Yaml();
-		DataMap configMap = DataMap.newMap();
-		try (InputStream inputStream = resourceURL.openStream()) {
-			Map<String, Object> yamlMap = yaml.loadAs(inputStream, Map.class);
+		final DataMap configMap = DataMap.newMap();
+		final Yaml yaml = new Yaml();
+		return StreamUtils.loadInputStream(aConfigPath, aInputStream -> {
+			Map<String, Object> yamlMap = yaml.loadAs(aInputStream, Map.class);
 			yamlToProperties(yamlMap, CommonConstants.EMPTY_STRING, configMap);
-		} catch (IOException error) {
-			throw new ApplicationException(error);
-		}
 
-		return configMap;
+			return configMap;
+		});
 	}
 
 	/**

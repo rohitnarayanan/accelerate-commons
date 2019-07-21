@@ -1,6 +1,15 @@
 package accelerate.commons.data;
 
+import static accelerate.commons.AccelerateCommonsTest.testDataBean;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_FIELD;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_VALUE;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_NAME_FIELD;
+import static accelerate.commons.constant.CommonTestConstants.BEAN_NAME_VALUE;
+import static accelerate.commons.constant.CommonTestConstants.KEY;
+import static accelerate.commons.constant.CommonTestConstants.VALUE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -8,8 +17,10 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.PathNotFoundException;
 
-import accelerate.commons.util.JSONUtils;
+import accelerate.commons.util.JacksonUtils;
+import accelerate.commons.util.XMLUtils;
 
 /**
  * {@link Test} class for {@link DataBean}
@@ -30,7 +41,8 @@ class DataBeanTest {
 	}
 
 	/**
-	 * Test method for {@link accelerate.commons.data.DataBean#DataBean()}.
+	 * Test method for {@link accelerate.commons.data.DataBean#DataBean()} and
+	 * {@link accelerate.commons.data.DataBean#putAnd(java.lang.String, java.lang.Object)}.
 	 */
 	@Test
 	void testDataBean() {
@@ -39,56 +51,37 @@ class DataBeanTest {
 
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.data.DataBean#DataBean(java.lang.String)} and
-	 * {@link accelerate.commons.data.DataBean#toShortJSON()}
-	 */
-	@Test
-	void testDataBeanString() {
-		DataBean dataBean = DataBean.newBean(KEY, VALUE);
-		String objectToString = DataBean.class.getName() + "@" + Integer.toHexString(dataBean.hashCode());
-		assertEquals(objectToString, JsonPath.parse(dataBean.toShortJSON()).read("$.id"));
-
-		TestDataBean testDataBean = new TestDataBean();
-		testDataBean.setBeanId("1234");
-		assertEquals("1234", JsonPath.parse(testDataBean.toShortJSON()).read("$.beanId"));
-	}
-
-	/**
-	 * Test method for
 	 * <ul>
-	 * <li>{@link accelerate.commons.data.DataBean#addJsonIgnoreFields(java.lang.String[])}</li>
-	 * <li>{@link accelerate.commons.data.DataBean#removeJsonIgnoreFields(java.lang.String[])}</li>
+	 * <li>{@link accelerate.commons.data.DataBean#addIgnoredFields(java.lang.String[])}</li>
+	 * <li>{@link accelerate.commons.data.DataBean#removeIgnoredFields(java.lang.String[])}</li>
+	 * <li>{@link accelerate.commons.data.DataBean#clearIgnoredFields()}</li>
 	 * <li>{@link accelerate.commons.data.DataBean#toJSON()}</li>
-	 * <li>{@link accelerate.commons.data.DataBean#toJSON(boolean)}</li>
 	 * <li>{@link accelerate.commons.data.DataBean#toString()}</li>
+	 * <li>{@link accelerate.commons.data.DataBean#toXML()}</li>
+	 * <li>{@link accelerate.commons.data.DataBean#toYAML()}</li>
 	 * </ul>
 	 */
 	@Test
 	void testAddJsonIgnoreFields() {
-		TestDataBean testDataBean = new TestDataBean();
-		testDataBean.setBeanId("1234");
-		testDataBean.setBeanValue("Value1234");
+		TestDataBean localTestDataBean = new TestDataBean();
 
-		testDataBean.addJsonIgnoreFields("beanValue");
-		assertEquals("1234", JsonPath.parse(testDataBean.toJSON()).read("$.beanId"));
+		localTestDataBean.addIgnoredFields(BEAN_ID_FIELD, BEAN_NAME_FIELD);
+		assertThrows(PathNotFoundException.class, () -> JsonPath.parse(localTestDataBean.toJSON()).read("$.beanValue"));
 
-		testDataBean.addJsonIgnoreFields("beanId");
-		testDataBean.removeJsonIgnoreFields("beanValue");
-		assertEquals("Value1234", JsonPath.parse(testDataBean.toString()).read("$.beanValue"));
+		localTestDataBean.removeIgnoredFields(BEAN_NAME_FIELD);
+		assertEquals(BEAN_NAME_VALUE, JsonPath.parse(localTestDataBean.toJSON()).read("$." + BEAN_NAME_FIELD));
+
+		localTestDataBean.clearIgnoredFields();
+		assertEquals(BEAN_ID_VALUE, JsonPath.parse(localTestDataBean.toString()).read("$." + BEAN_ID_FIELD));
+		assertEquals(BEAN_ID_VALUE, XMLUtils.xPathNodeAttribute("/TestDataBean", BEAN_ID_FIELD,
+				XMLUtils.stringToXML(localTestDataBean.toXML())));
+		assertThat(localTestDataBean.toYAML()).contains(BEAN_ID_FIELD + ": \"");
 	}
 
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.data.DataBean#putAnd(java.lang.String, java.lang.Object)}.
-	 */
-	@Test
-	void testPutAnd() {
-		assertEquals(VALUE, DataBean.newBean().putAnd(KEY, VALUE).get(KEY));
-	}
-
-	/**
-	 * Test method for
-	 * {@link accelerate.commons.data.DataBean#putAllAnd(java.util.Map)}.
+	 * {@link accelerate.commons.data.DataBean#putAllAnd(java.util.Map)} and
+	 * {@link accelerate.commons.data.DataBean#putAllAnd(Object...)}.
 	 */
 	@Test
 	void testPutAllAnd() {
@@ -96,14 +89,7 @@ class DataBeanTest {
 		map.put(KEY, VALUE);
 
 		assertEquals(VALUE, DataBean.newBean().putAllAnd(map).get(KEY));
-	}
 
-	/**
-	 * Test method for
-	 * {@link accelerate.commons.data.DataBean#putAllAnd(Object...)}.
-	 */
-	@Test
-	void testputAllAndVarargs() {
 		assertEquals(VALUE, DataBean.newBean().putAllAnd(KEY, VALUE).get(KEY));
 	}
 
@@ -149,11 +135,6 @@ class DataBeanTest {
 	 */
 	@Test
 	void testGetDataMap() {
-		TestDataBean testDataBean = new TestDataBean();
-		testDataBean.setBeanId("1234");
-		testDataBean.setBeanValue("Value1234");
-		testDataBean.putAnd(KEY, VALUE);
-
 		// getDataMap
 		assertEquals(VALUE, testDataBean.getDataMap().get(KEY));
 
@@ -161,42 +142,6 @@ class DataBeanTest {
 		assertEquals(VALUE, JsonPath.parse(testDataBean.toString()).read("$.key"));
 
 		// JSONAnySetter
-		assertEquals(VALUE, JSONUtils.deserialize(JSONUtils.buildJSON(KEY, VALUE), DataBean.class).get(KEY));
+		assertEquals(VALUE, JacksonUtils.fromJSON(JacksonUtils.buildJSON(KEY, VALUE), DataBean.class).get(KEY));
 	}
-
-	@SuppressWarnings({ "javadoc", "serial" })
-	class TestDataBean extends DataBean {
-		private String beanId = null;
-		private String beanValue = null;
-
-		public TestDataBean() {
-			super("beanId");
-		}
-
-		public String getBeanId() {
-			return this.beanId;
-		}
-
-		public void setBeanId(String aBeanId) {
-			this.beanId = aBeanId;
-		}
-
-		public String getBeanValue() {
-			return this.beanValue;
-		}
-
-		public void setBeanValue(String aBeanValue) {
-			this.beanValue = aBeanValue;
-		}
-	}
-
-	/**
-	 * Key
-	 */
-	private static String KEY = "key";
-
-	/**
-	 * Value
-	 */
-	private static String VALUE = "value";
 }

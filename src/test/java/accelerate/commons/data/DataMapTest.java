@@ -2,6 +2,8 @@ package accelerate.commons.data;
 
 import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
 import static accelerate.commons.constant.CommonConstants.SPACE;
+import static accelerate.commons.constant.CommonTestConstants.KEY;
+import static accelerate.commons.constant.CommonTestConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
@@ -114,14 +116,4 @@ class DataMapTest {
 		assertEquals(expected, dataMap.toJSON().replaceAll(SPACE, EMPTY_STRING));
 		assertEquals(expected, dataMap.toString().replaceAll(SPACE, EMPTY_STRING));
 	}
-
-	/**
-	 * Key
-	 */
-	private static String KEY = "key";
-
-	/**
-	 * Value
-	 */
-	private static String VALUE = "value";
 }

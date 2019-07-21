@@ -15,7 +15,6 @@ import accelerate.commons.exception.ApplicationException;
  */
 public final class ReflectionUtils {
 	/**
-	 * @param aTargetClass
 	 * @param aTargetInstance
 	 * @param aTargetField
 	 * @return
@@ -26,10 +25,9 @@ public final class ReflectionUtils {
 	 *                              {@link NoSuchFieldException} |
 	 *                              {@link SecurityException}
 	 */
-	public static Object getFieldValue(Class<?> aTargetClass, Object aTargetInstance, String aTargetField)
-			throws ApplicationException {
+	public static Object getFieldValue(Object aTargetInstance, String aTargetField) throws ApplicationException {
 		try {
-			Field field = aTargetClass.getField(aTargetField);
+			Field field = aTargetInstance.getClass().getField(aTargetField);
 			if (field == null) {
 				throw new NoSuchFieldException("Field " + aTargetField + " not found.");
 			}

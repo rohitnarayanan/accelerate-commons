@@ -41,7 +41,7 @@ public final class CollectionUtils {
 		/*
 		 * populate entries
 		 */
-		if (aProperties != null && aProperties.size() > 0) {
+		if (!CommonUtils.isEmpty(aProperties)) {
 			aProperties.forEach((aKey, aValue) -> propMap.put(aKey.toString(), type.cast(aValue)));
 		}
 
@@ -79,7 +79,7 @@ public final class CollectionUtils {
 	 */
 	@SafeVarargs
 	public final static <E> List<E> toList(E... aCollection) {
-		if (aCollection == null || aCollection.length == 0) {
+		if ((aCollection == null) || (aCollection.length == 0)) {
 			return new ArrayList<>();
 		}
 
@@ -157,7 +157,7 @@ public final class CollectionUtils {
 	 * @return true, if Collection was sorted
 	 */
 	public static <E extends Comparable<E>> boolean sort(List<E> aList) {
-		if (aList == null || aList.isEmpty()) {
+		if ((aList == null) || aList.isEmpty()) {
 			return false;
 		}
 

@@ -1,5 +1,7 @@
 package accelerate.commons.util;
 
+import static accelerate.commons.constant.CommonTestConstants.KEY;
+import static accelerate.commons.constant.CommonTestConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -23,23 +25,26 @@ import accelerate.commons.data.DataMap;
  * @since June 26, 2019
  */
 @SuppressWarnings("static-method")
-public class CollectionUtilsTests {
+class CollectionUtilsTests {
 	/**
 	 * Test method for
 	 * {@link accelerate.commons.util.CollectionUtils#convertToMap(Properties, java.lang.Class)}.
 	 */
 	@Test
 	void testConvertToMap() {
+		assertEquals(0, CollectionUtils.convertToMap(null, String.class).size());
+
 		Properties testProps = new Properties();
+		assertEquals(0, CollectionUtils.convertToMap(testProps, String.class).size());
 
 		// Test string value
-		testProps.put("key", "value");
+		testProps.put(KEY, VALUE);
 		assertEquals(1, CollectionUtils.convertToMap(testProps, String.class).size());
 
 		// Test other type value
-		testProps.put("key", DataBean.newBean("innerKey", "innerValue"));
+		testProps.put(KEY, DataBean.newBean("innerKey", "innerValue"));
 		assertEquals("innerValue",
-				CollectionUtils.convertToMap(testProps, DataBean.class).get("key").getString("innerKey"));
+				CollectionUtils.convertToMap(testProps, DataBean.class).get(KEY).getString("innerKey"));
 	}
 
 	/**
@@ -116,6 +121,7 @@ public class CollectionUtilsTests {
 	@Test
 	void testSort() {
 		assertFalse(CollectionUtils.sort(null));
+		assertFalse(CollectionUtils.sort(new ArrayList<>()));
 
 		List<String> testList = CollectionUtils.toList("b", "a");
 		assertTrue(CollectionUtils.sort(testList));

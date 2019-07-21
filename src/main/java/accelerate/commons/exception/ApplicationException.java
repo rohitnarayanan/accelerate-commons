@@ -4,7 +4,7 @@ import org.slf4j.helpers.MessageFormatter;
 
 import accelerate.commons.data.DataMap;
 import accelerate.commons.util.CommonUtils;
-import accelerate.commons.util.JSONUtils;
+import accelerate.commons.util.JacksonUtils;
 
 /**
  * This is a simple {@link RuntimeException} extension providing wrapper methods
@@ -58,7 +58,7 @@ public class ApplicationException extends RuntimeException {
 	 * @param aCause
 	 */
 	public ApplicationException(Throwable aCause) {
-		super(aCause.getMessage(), aCause);
+		super(aCause);
 	}
 
 	/**
@@ -171,10 +171,10 @@ public class ApplicationException extends RuntimeException {
 	 * 
 	 * @return
 	 * @throws ApplicationException thrown due to
-	 *                              {@link JSONUtils#serialize(Object)}
+	 *                              {@link JacksonUtils#buildJSON(Object...)}
 	 */
 	public String toJSON() throws ApplicationException {
-		return JSONUtils.buildJSON("message", getMessage(), "stacktrace", CommonUtils.getErrorLog(this), "data",
+		return JacksonUtils.buildJSON("message", getMessage(), "stacktrace", CommonUtils.getErrorLog(this), "data",
 				getDataMap());
 	}
 }

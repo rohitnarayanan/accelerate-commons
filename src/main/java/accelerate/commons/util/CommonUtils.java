@@ -22,6 +22,27 @@ import accelerate.commons.constant.CommonConstants;
  */
 public final class CommonUtils {
 	/**
+	 * Utility method to adjust the start index for all sub*** methods for
+	 * Lists/Strings etc.
+	 * 
+	 * @param aIndex
+	 * @param aLength
+	 * @return
+	 */
+	public static int getAdjustedIndex(int aIndex, int aLength) {
+		int adjustedIndex = (aIndex < 0) ? (aLength + aIndex) : aIndex;
+		if (adjustedIndex < 0) {
+			return 0;
+		}
+
+		if (adjustedIndex > aLength) {
+			return aLength;
+		}
+
+		return adjustedIndex;
+	}
+
+	/**
 	 * @param obj
 	 * @return
 	 */
@@ -52,27 +73,6 @@ public final class CommonUtils {
 
 		// else
 		return false;
-	}
-
-	/**
-	 * Utility method to adjust the start index for all sub*** methods for
-	 * Lists/Strings etc.
-	 * 
-	 * @param aIndex
-	 * @param aLength
-	 * @return
-	 */
-	public static int getAdjustedIndex(int aIndex, int aLength) {
-		int adjustedIndex = (aIndex < 0) ? (aLength + aIndex) : aIndex;
-		if (adjustedIndex < 0) {
-			return 0;
-		}
-
-		if (adjustedIndex > aLength) {
-			return aLength;
-		}
-
-		return adjustedIndex;
 	}
 
 	/**

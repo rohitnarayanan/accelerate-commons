@@ -1,12 +1,11 @@
 package accelerate.commons.util;
 
-import java.io.InputStream;
+import java.io.IOException;
+import java.io.StringReader;
 import java.io.StringWriter;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerFactory;
@@ -22,6 +21,8 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
 
 import accelerate.commons.exception.ApplicationException;
 
@@ -30,7 +31,7 @@ import accelerate.commons.exception.ApplicationException;
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since January 14, 2015
+ * @since October 2, 2017
  */
 public final class XMLUtils {
 	/**
@@ -63,14 +64,35 @@ public final class XMLUtils {
 	}
 
 	/**
-	 * @param aInputStream
-	 * @return {@link Document}
-	 * @throws ApplicationException
+	 * @param aXMLPath
+	 * @return
 	 */
-	public static Document loadXML(InputStream aInputStream) throws ApplicationException {
+	public static Document loadXML(String aXMLPath) {
+		if (StringUtils.isEmpty(aXMLPath)) {
+			throw new ApplicationException("Parameter XMLPath is required");
+		}
+
+		return StreamUtils.loadInputStream(aXMLPath, aInputStream -> {
+			try {
+				return builderFactory.newDocumentBuilder().parse(aInputStream);
+			} catch (IOException | SAXException | ParserConfigurationException error) {
+				throw new ApplicationException(error);
+			}
+		});
+	}
+
+	/**
+	 * @param aXMLString
+	 * @return
+	 */
+	public static Document stringToXML(String aXMLString) {
+		if (StringUtils.isEmpty(aXMLString)) {
+			throw new ApplicationException("Parameter aXMLString is required");
+		}
+
 		try {
-			return builderFactory.newDocumentBuilder().parse(aInputStream);
-		} catch (Exception error) {
+			return builderFactory.newDocumentBuilder().parse(new InputSource(new StringReader(aXMLString)));
+		} catch (IOException | SAXException | ParserConfigurationException error) {
 			throw new ApplicationException(error);
 		}
 	}
@@ -98,89 +120,78 @@ public final class XMLUtils {
 	}
 
 	/**
-	 * @param aInstanceType
-	 * @param aXMLClassPath
-	 * @param <T>
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static <T> T unmarshalXML(Class<T> aInstanceType, String aXMLClassPath) {
-		try {
-			JAXBContext jaxbContext = JAXBContext.newInstance(aInstanceType);
-			Unmarshaller jaxbUnmarshaller = jaxbContext.createUnmarshaller();
-			return (T) jaxbUnmarshaller.unmarshal(aInstanceType.getResource(aXMLClassPath));
-		} catch (JAXBException error) {
-			throw new ApplicationException(error, "error unmarshalling XML");
-		}
-	}
-
-	/**
-	 * @param aXPathExpr
+	 * @param aExpression
 	 * @param aContext
 	 * @return
 	 * @throws ApplicationException
 	 */
-	public static NodeList queryNodeSet(String aXPathExpr, Node aContext) throws ApplicationException {
-		LOGGER.trace("xPath Expression: {}", aXPathExpr);
+	public static NodeList xPathNodeList(String aExpression, Node aContext) throws ApplicationException {
+		LOGGER.trace("xPath Expression: {}", aExpression);
 
 		XPath xPath = xPathFactory.newXPath();
 		try {
-			return (NodeList) xPath.evaluate(aXPathExpr, aContext, XPathConstants.NODESET);
+			return (NodeList) xPath.evaluate(aExpression, aContext, XPathConstants.NODESET);
 		} catch (XPathExpressionException error) {
 			throw new ApplicationException(error);
 		}
 	}
 
 	/**
-	 * @param aXPathExpr
+	 * @param aExpression
 	 * @param aContext
 	 * @return
 	 * @throws ApplicationException
 	 */
-	public static Node queryNode(String aXPathExpr, Node aContext) throws ApplicationException {
-		LOGGER.trace("xPath Expression: {}", aXPathExpr);
+	public static Node xPathNode(String aExpression, Node aContext) throws ApplicationException {
+		LOGGER.trace("xPath Expression: {}", aExpression);
 
 		XPath xPath = xPathFactory.newXPath();
 		try {
-			return (Node) xPath.evaluate(aXPathExpr, aContext, XPathConstants.NODE);
+			return (Node) xPath.evaluate(aExpression, aContext, XPathConstants.NODE);
 		} catch (XPathExpressionException error) {
 			throw new ApplicationException(error);
 		}
 	}
 
 	/**
-	 * @param aXPathExpr
+	 * @param aExpression
 	 * @param aContext
 	 * @return
 	 * @throws ApplicationException
 	 */
-	public static String queryValue(String aXPathExpr, Node aContext) throws ApplicationException {
-		LOGGER.trace("xPath Expression: {}", aXPathExpr);
+	public static String xPathNodeValue(String aExpression, Node aContext) throws ApplicationException {
+		LOGGER.trace("xPath Expression: {}", aExpression);
 
 		XPath xPath = xPathFactory.newXPath();
 		try {
-			String value = (String) xPath.evaluate(aXPathExpr + "/text()", aContext, XPathConstants.STRING);
+			String value = StringUtils
+					.trim((String) xPath.evaluate(aExpression + "/text()", aContext, XPathConstants.STRING));
+			LOGGER.trace("xPath Value: {}", value);
 
-			return StringUtils.trim(value);
+			return value;
 		} catch (XPathExpressionException error) {
 			throw new ApplicationException(error);
 		}
 	}
 
 	/**
-	 * @param aXPathExpr
+	 * @param aExpression
 	 * @param aAttributeName
 	 * @param aContext
 	 * @return
 	 * @throws ApplicationException
 	 */
-	public static String queryAttribute(String aXPathExpr, String aAttributeName, Node aContext)
+	public static String xPathNodeAttribute(String aExpression, String aAttributeName, Node aContext)
 			throws ApplicationException {
-		LOGGER.trace("xPath Expression: {}, attribute: {}", aXPathExpr, aAttributeName);
+		LOGGER.trace("xPath Expression: {}, attribute: {}", aExpression, aAttributeName);
 
 		XPath xPath = xPathFactory.newXPath();
 		try {
-			return (String) xPath.evaluate(aXPathExpr + "/@" + aAttributeName, aContext, XPathConstants.STRING);
+			String attribute = StringUtils.trim(
+					(String) xPath.evaluate(aExpression + "/@" + aAttributeName, aContext, XPathConstants.STRING));
+			LOGGER.trace("xPath Value: {}", attribute);
+
+			return attribute;
 		} catch (XPathExpressionException error) {
 			throw new ApplicationException(error);
 		}

@@ -1,5 +1,7 @@
 package accelerate.commons.exception;
 
+import static accelerate.commons.constant.CommonTestConstants.KEY;
+import static accelerate.commons.constant.CommonTestConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -85,7 +87,7 @@ class ApplicationExceptionTest {
 	 */
 	@Test
 	void testPutAnd() {
-		assertEquals("value", new ApplicationException().putAnd("key", "value").getDataMap().get("key"));
+		assertEquals(VALUE, new ApplicationException().putAnd(KEY, VALUE).getDataMap().get(KEY));
 	}
 
 	/**
@@ -104,8 +106,7 @@ class ApplicationExceptionTest {
 	 */
 	@Test
 	void testToJSON() {
-		assertEquals("value",
-				JsonPath.parse(new ApplicationException().putAnd("key", "value").toJSON()).read("$.data.key"));
+		assertEquals(VALUE, JsonPath.parse(new ApplicationException().putAnd(KEY, VALUE).toJSON()).read("$.data.key"));
 		assertEquals("testToJSON", JsonPath.parse(new ApplicationException("testToJSON").toJSON()).read("$.message"));
 	}
 }
