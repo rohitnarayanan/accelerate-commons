@@ -23,7 +23,7 @@ public class ApplicationException extends RuntimeException {
 	/**
 	 * custom data to be attached to the exception
 	 */
-	private DataMap dataMap = DataMap.newMap();
+	private transient DataMap dataMap = DataMap.newMap();
 
 	/**
 	 * Delegate constructor for {@link RuntimeException#RuntimeException()}

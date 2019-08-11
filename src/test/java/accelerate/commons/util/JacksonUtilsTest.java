@@ -116,7 +116,7 @@ class JacksonUtilsTest {
 	 */
 	@Test
 	void testToJSONExcludeFields() {
-		assertEquals(EMPTY_STRING, JacksonUtils.toJSONExcludeFields(null, BEAN_NAME_FIELD));
+		assertEquals(EMPTY_STRING, JacksonUtils.toJSONExcludeFields((Object) null, BEAN_NAME_FIELD));
 		assertThrows(PathNotFoundException.class, () -> JsonPath
 				.parse(JacksonUtils.toJSONExcludeFields(testDataBean, BEAN_NAME_FIELD)).read("$." + BEAN_NAME_FIELD));
 	}
@@ -147,7 +147,7 @@ class JacksonUtilsTest {
 	 */
 	@Test
 	void testToJSONSelectFields() {
-		assertEquals(EMPTY_STRING, JacksonUtils.toJSONSelectFields(null, BEAN_NAME_FIELD));
+		assertEquals(EMPTY_STRING, JacksonUtils.toJSONSelectFields((Object) null, BEAN_NAME_FIELD));
 
 		DocumentContext context = JsonPath.parse(JacksonUtils.toJSONSelectFields(testDataBean, BEAN_ID_FIELD));
 		assertThrows(PathNotFoundException.class, () -> context.read("$." + BEAN_NAME_FIELD));

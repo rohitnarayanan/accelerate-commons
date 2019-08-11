@@ -30,7 +30,7 @@ public class DataBean implements Serializable {
 	 * Instance of {@link DataMap} for generic storage
 	 */
 	@JsonAnySetter
-	private DataMap dataMap = DataMap.newMap();
+	private transient DataMap dataMap = DataMap.newMap();
 
 	/**
 	 * {@link Set} to include names of fields to exclude while serializing

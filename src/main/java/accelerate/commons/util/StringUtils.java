@@ -25,16 +25,6 @@ public final class StringUtils {
 	}
 
 	/**
-	 * {@link String#isEmpty()} shortcut to handle null/blank inputs
-	 * 
-	 * @param aString
-	 * @return
-	 */
-	public static boolean isEmpty(CharSequence aString) {
-		return trim(aString).isEmpty();
-	}
-
-	/**
 	 * {@link String#length()} shortcut to handle null/blank inputs
 	 * 
 	 * @param aString
@@ -42,6 +32,27 @@ public final class StringUtils {
 	 */
 	public static int length(CharSequence aString) {
 		return trim(aString).length();
+	}
+
+	/**
+	 * {@link String#equals(Object)} shortcut to handle null/blank inputs
+	 * 
+	 * @param aStringA
+	 * @param aStringB
+	 * @return
+	 */
+	public static boolean equals(CharSequence aStringA, CharSequence aStringB) {
+		return trim(aStringA).equals(trim(aStringB));
+	}
+
+	/**
+	 * {@link String#isEmpty()} shortcut to handle null/blank inputs
+	 * 
+	 * @param aString
+	 * @return
+	 */
+	public static boolean isEmpty(CharSequence aString) {
+		return trim(aString).isEmpty();
 	}
 
 	/**

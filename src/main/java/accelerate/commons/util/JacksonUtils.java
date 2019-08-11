@@ -27,7 +27,8 @@ import accelerate.commons.data.DataMap;
 import accelerate.commons.exception.ApplicationException;
 
 /**
- * Class providing utility methods for JSON operations
+ * Class providing utility methods to serialize/de-serialize object from/to
+ * JSON/XML/YAML strings using Jackson library
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
@@ -40,12 +41,12 @@ public final class JacksonUtils {
 	private static ObjectMapper jsonMapper = configureMapper(new ObjectMapper());
 
 	/**
-	 * Default {@link ObjectMapper} to be used for all JSON serialization
+	 * Default {@link ObjectMapper} to be used for all XML serialization
 	 */
 	private static XmlMapper xmlMapper = configureMapper(new XmlMapper());
 
 	/**
-	 * Default {@link YAMLMapper} to be used for all JSON serialization
+	 * Default {@link YAMLMapper} to be used for all YAML serialization
 	 */
 	private static YAMLMapper yamlMapper = configureMapper(new YAMLMapper());
 
@@ -91,13 +92,13 @@ public final class JacksonUtils {
 		aMapper.setVisibility(PropertyAccessor.ALL, Visibility.NONE);
 		aMapper.setVisibility(PropertyAccessor.FIELD, Visibility.ANY);
 
-		// Write JSON settings
+		// Write settings
 		aMapper.setDefaultPropertyInclusion(Include.NON_NULL);
 		aMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 		aMapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 		aMapper.configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, false);
 
-		// Read JSON settings
+		// Read settings
 		aMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
 		return aMapper;
@@ -111,7 +112,19 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String toJSON(Object aObject) throws ApplicationException {
-		return serialize(aObject, jsonMapper);
+		return serialize(jsonMapper, aObject);
+	}
+
+	/**
+	 * This is the default method to convert the given object to JSON string
+	 *
+	 * @param aMapper {@link ObjectMapper} instance to use for serialization
+	 * @param aObject Object to be converted to JSON string
+	 * @return JSON string
+	 * @throws ApplicationException
+	 */
+	public static String toJSON(ObjectMapper aMapper, Object aObject) throws ApplicationException {
+		return serialize(aMapper, aObject);
 	}
 
 	/**
@@ -122,7 +135,19 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String toXML(Object aObject) throws ApplicationException {
-		return serialize(aObject, xmlMapper);
+		return serialize(xmlMapper, aObject);
+	}
+
+	/**
+	 * This is the default method to convert the given object to XML string
+	 *
+	 * @param aObject Object to be converted to XML string
+	 * @param aMapper {@link XmlMapper} instance to use for serialization
+	 * @return XML string
+	 * @throws ApplicationException
+	 */
+	public static String toXML(XmlMapper aMapper, Object aObject) throws ApplicationException {
+		return serialize(aMapper, aObject);
 	}
 
 	/**
@@ -133,7 +158,19 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String toYAML(Object aObject) throws ApplicationException {
-		return serialize(aObject, yamlMapper);
+		return serialize(yamlMapper, aObject);
+	}
+
+	/**
+	 * This is the default method to convert the given object to YAML string
+	 *
+	 * @param aMapper {@link YAMLMapper} instance to use for serialization
+	 * @param aObject Object to be converted to YAML string
+	 * @return YAML string
+	 * @throws ApplicationException
+	 */
+	public static String toYAML(YAMLMapper aMapper, Object aObject) throws ApplicationException {
+		return serialize(aMapper, aObject);
 	}
 
 	/**
@@ -143,12 +180,12 @@ public final class JacksonUtils {
 	 * @param <T>     {@link ObjectMapper} or subtype like {@link XmlMapper} /
 	 *                {@link YAMLMapper}
 	 *
-	 * @param aObject
 	 * @param aMapper
+	 * @param aObject
 	 * @return
 	 * @throws ApplicationException
 	 */
-	private static <T extends ObjectMapper> String serialize(Object aObject, T aMapper) throws ApplicationException {
+	private static <T extends ObjectMapper> String serialize(T aMapper, Object aObject) throws ApplicationException {
 		if (aObject == null) {
 			return EMPTY_STRING;
 		}
@@ -177,6 +214,21 @@ public final class JacksonUtils {
 	}
 
 	/**
+	 * This method converts the given object to JSON string, excluding all the given
+	 * field names
+	 *
+	 * @param aMapper         {@link ObjectMapper} instance to use for serialization
+	 * @param aObject         Object to be converted to JSON string
+	 * @param aExcludedFields Fields to be excluded from the JSON string
+	 * @return JSON string
+	 * @throws ApplicationException
+	 */
+	public static String toJSONExcludeFields(ObjectMapper aMapper, Object aObject, String... aExcludedFields)
+			throws ApplicationException {
+		return serializeExcept(aObject, aMapper, aExcludedFields);
+	}
+
+	/**
 	 * This method converts the given object to XML string, excluding all the given
 	 * field names
 	 *
@@ -190,6 +242,21 @@ public final class JacksonUtils {
 	}
 
 	/**
+	 * This method converts the given object to XML string, excluding all the given
+	 * field names
+	 *
+	 * @param aMapper         {@link XmlMapper} instance to use for serialization
+	 * @param aObject         Object to be converted to XML string
+	 * @param aExcludedFields Fields to be excluded from the XML string
+	 * @return XML string
+	 * @throws ApplicationException
+	 */
+	public static String toXMLExcludeFields(XmlMapper aMapper, Object aObject, String... aExcludedFields)
+			throws ApplicationException {
+		return serializeExcept(aObject, aMapper, aExcludedFields);
+	}
+
+	/**
 	 * This method converts the given object to YAML string, excluding all the given
 	 * field names
 	 *
@@ -200,6 +267,21 @@ public final class JacksonUtils {
 	 */
 	public static String toYAMLExcludeFields(Object aObject, String... aExcludedFields) throws ApplicationException {
 		return serializeExcept(aObject, yamlMapper.copy(), aExcludedFields);
+	}
+
+	/**
+	 * This method converts the given object to YAML string, excluding all the given
+	 * field names
+	 *
+	 * @param aMapper         {@link YAMLMapper} instance to use for serialization
+	 * @param aObject         Object to be converted to YAML string
+	 * @param aExcludedFields Fields to be excluded from the YAML string
+	 * @return YAML string
+	 * @throws ApplicationException
+	 */
+	public static String toYAMLExcludeFields(YAMLMapper aMapper, Object aObject, String... aExcludedFields)
+			throws ApplicationException {
+		return serializeExcept(aObject, aMapper, aExcludedFields);
 	}
 
 	/**
@@ -252,9 +334,25 @@ public final class JacksonUtils {
 	 * This method converts the given object to JSON string, including only the
 	 * given field names
 	 *
+	 * @param aMapper         {@link ObjectMapper} instance to use for serialization
 	 * @param aObject         Object to be converted to JSON string
 	 * @param aIncludedFields Field names that should be included in the JSON output
 	 * @return JSON string
+	 * @throws ApplicationException
+	 */
+	public static String toJSONSelectFields(ObjectMapper aMapper, Object aObject, String... aIncludedFields)
+			throws ApplicationException {
+		return serializeOnly(aObject, aMapper, aIncludedFields);
+	}
+
+	/**
+	 * This method converts the given object to XML string, including only the given
+	 * field names
+	 *
+	 *
+	 * @param aObject         Object to be converted to XML string
+	 * @param aIncludedFields Field names that should be included in the XML output
+	 * @return XML string
 	 * @throws ApplicationException
 	 */
 	public static String toXMLSelectFields(Object aObject, String... aIncludedFields) throws ApplicationException {
@@ -262,16 +360,46 @@ public final class JacksonUtils {
 	}
 
 	/**
-	 * This method converts the given object to JSON string, including only the
+	 * This method converts the given object to XML string, including only the given
+	 * field names
+	 *
+	 * @param aMapper         {@link XmlMapper} instance to use for serialization
+	 * @param aObject         Object to be converted to XML string
+	 * @param aIncludedFields Field names that should be included in the XML output
+	 * @return XML string
+	 * @throws ApplicationException
+	 */
+	public static String toXMLSelectFields(XmlMapper aMapper, Object aObject, String... aIncludedFields)
+			throws ApplicationException {
+		return serializeOnly(aObject, aMapper, aIncludedFields);
+	}
+
+	/**
+	 * This method converts the given object to YAML string, including only the
 	 * given field names
 	 *
-	 * @param aObject         Object to be converted to JSON string
-	 * @param aIncludedFields Field names that should be included in the JSON output
-	 * @return JSON string
+	 * @param aObject         Object to be converted to YAML string
+	 * @param aIncludedFields Field names that should be included in the YAML output
+	 * @return YAML string
 	 * @throws ApplicationException
 	 */
 	public static String toYAMLSelectFields(Object aObject, String... aIncludedFields) throws ApplicationException {
 		return serializeOnly(aObject, yamlMapper.copy(), aIncludedFields);
+	}
+
+	/**
+	 * This method converts the given object to YAML string, including only the
+	 * given field names
+	 * 
+	 * @param aMapper         {@link YAMLMapper} instance to use for serialization
+	 * @param aObject         Object to be converted to YAML string
+	 * @param aIncludedFields Field names that should be included in the YAML output
+	 * @return YAML string
+	 * @throws ApplicationException
+	 */
+	public static String toYAMLSelectFields(YAMLMapper aMapper, Object aObject, String... aIncludedFields)
+			throws ApplicationException {
+		return serializeOnly(aObject, aMapper, aIncludedFields);
 	}
 
 	/**
@@ -319,7 +447,7 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static <T> T fromJSON(String aJSONString, Class<T> aClass) throws ApplicationException {
-		return deserialize(aJSONString, aClass, jsonMapper);
+		return deserialize(jsonMapper, aJSONString, aClass);
 	}
 
 	/**
@@ -327,29 +455,78 @@ public final class JacksonUtils {
 	 * class loaded with data
 	 *
 	 * @param <T>         Any subclass of {@link Object}
+	 * @param aMapper     {@link ObjectMapper} instance to use for deserialization
 	 * @param aJSONString JSON string to be parsed
 	 * @param aClass      {@link Class} which should be instantiated from the JSON
 	 *                    string
 	 * @return loaded instance
 	 * @throws ApplicationException
 	 */
-	public static <T> T fromXML(String aJSONString, Class<T> aClass) throws ApplicationException {
-		return deserialize(aJSONString, aClass, xmlMapper);
+	public static <T> T fromJSON(ObjectMapper aMapper, String aJSONString, Class<T> aClass)
+			throws ApplicationException {
+		return deserialize(aMapper, aJSONString, aClass);
 	}
 
 	/**
-	 * This method parses the given JSON string and returns an instance of the given
+	 * This method parses the given XML string and returns an instance of the given
+	 * class loaded with data
+	 *
+	 * @param <T>        Any subclass of {@link Object}
+	 * @param aXMLString XML string to be parsed
+	 * @param aClass     {@link Class} which should be instantiated from the XML
+	 *                   string
+	 * @return loaded instance
+	 * @throws ApplicationException
+	 */
+	public static <T> T fromXML(String aXMLString, Class<T> aClass) throws ApplicationException {
+		return deserialize(xmlMapper, aXMLString, aClass);
+	}
+
+	/**
+	 * This method parses the given XML string and returns an instance of the given
+	 * class loaded with data
+	 *
+	 * @param <T>        Any subclass of {@link Object}
+	 * @param aMapper    {@link XmlMapper} instance to use for deserialization
+	 * @param aXMLString XML string to be parsed
+	 * @param aClass     {@link Class} which should be instantiated from the XML
+	 *                   string
+	 * @return loaded instance
+	 * @throws ApplicationException
+	 */
+	public static <T> T fromXML(XmlMapper aMapper, String aXMLString, Class<T> aClass) throws ApplicationException {
+		return deserialize(aMapper, aXMLString, aClass);
+	}
+
+	/**
+	 * This method parses the given YAML string and returns an instance of the given
 	 * class loaded with data
 	 *
 	 * @param <C>         Any subclass of {@link Object}
-	 * @param aJSONString JSON string to be parsed
-	 * @param aClass      {@link Class} which should be instantiated from the JSON
+	 * @param aYAMLString YAML string to be parsed
+	 * @param aClass      {@link Class} which should be instantiated from the YAML
 	 *                    string
 	 * @return loaded instance
 	 * @throws ApplicationException
 	 */
-	public static <C> C fromYAML(String aJSONString, Class<C> aClass) throws ApplicationException {
-		return deserialize(aJSONString, aClass, yamlMapper);
+	public static <C> C fromYAML(String aYAMLString, Class<C> aClass) throws ApplicationException {
+		return deserialize(yamlMapper, aYAMLString, aClass);
+	}
+
+	/**
+	 * This method parses the given YAML string and returns an instance of the given
+	 * class loaded with data
+	 *
+	 * @param <C>         Any subclass of {@link Object}
+	 * @param aMapper     {@link YAMLMapper} instance to use for deserialization
+	 * @param aYAMLString YAML string to be parsed
+	 * @param aClass      {@link Class} which should be instantiated from the YAML
+	 *                    string
+	 * @return loaded instance
+	 * @throws ApplicationException
+	 */
+	public static <C> C fromYAML(YAMLMapper aMapper, String aYAMLString, Class<C> aClass) throws ApplicationException {
+		return deserialize(aMapper, aYAMLString, aClass);
 	}
 
 	/**
@@ -359,13 +536,13 @@ public final class JacksonUtils {
 	 * @param <C>     Any subclass of {@link Object}
 	 * @param <T>     {@link ObjectMapper} or subtype like {@link XmlMapper} /
 	 *                {@link YAMLMapper}
+	 * @param aMapper
 	 * @param aString
 	 * @param aClass  {@link Class} which should be instantiated from the string
-	 * @param aMapper
 	 * @return
 	 * @throws ApplicationException
 	 */
-	private static <C extends Object, T extends ObjectMapper> C deserialize(String aString, Class<C> aClass, T aMapper)
+	private static <C extends Object, T extends ObjectMapper> C deserialize(T aMapper, String aString, Class<C> aClass)
 			throws ApplicationException {
 		if (StringUtils.isEmpty(aString)) {
 			return null;
@@ -384,7 +561,17 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String buildJSON(Object... aArgs) throws ApplicationException {
-		return serialize(DataMap.newMap(aArgs), jsonMapper);
+		return serialize(jsonMapper, DataMap.newMap(aArgs));
+	}
+
+	/**
+	 * @param aMapper {@link ObjectMapper} instance to use for serialization
+	 * @param aArgs
+	 * @return
+	 * @throws ApplicationException
+	 */
+	public static String buildJSON(ObjectMapper aMapper, Object... aArgs) throws ApplicationException {
+		return serialize(aMapper, DataMap.newMap(aArgs));
 	}
 
 	/**
@@ -393,7 +580,17 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String buildXML(Object... aArgs) throws ApplicationException {
-		return serialize(DataMap.newMap(aArgs), xmlMapper);
+		return serialize(xmlMapper, DataMap.newMap(aArgs));
+	}
+
+	/**
+	 * @param aMapper {@link XmlMapper} instance to use for serialization
+	 * @param aArgs
+	 * @return
+	 * @throws ApplicationException
+	 */
+	public static String buildXML(XmlMapper aMapper, Object... aArgs) throws ApplicationException {
+		return serialize(aMapper, DataMap.newMap(aArgs));
 	}
 
 	/**
@@ -402,7 +599,17 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String buildYAML(Object... aArgs) throws ApplicationException {
-		return serialize(DataMap.newMap(aArgs), yamlMapper);
+		return serialize(yamlMapper, DataMap.newMap(aArgs));
+	}
+
+	/**
+	 * @param aMapper {@link YAMLMapper} instance to use for serialization
+	 * @param aArgs
+	 * @return
+	 * @throws ApplicationException
+	 */
+	public static String buildYAML(YAMLMapper aMapper, Object... aArgs) throws ApplicationException {
+		return serialize(aMapper, DataMap.newMap(aArgs));
 	}
 
 	/**
