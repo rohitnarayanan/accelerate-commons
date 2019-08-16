@@ -1,12 +1,13 @@
 package accelerate.commons;
 
+import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_FIELD;
 import static accelerate.commons.constant.CommonTestConstants.KEY;
 import static accelerate.commons.constant.CommonTestConstants.VALUE;
 
 import accelerate.commons.data.DataBean;
 import accelerate.commons.data.DataMap;
 import accelerate.commons.data.TestDataBean;
-import accelerate.commons.exception.ApplicationException;
+import accelerate.commons.util.ReflectionUtils;
 
 /**
  * Basic test class for this project
@@ -31,7 +32,7 @@ public class AccelerateCommonsTest {
 	 */
 	public static void main(String[] args) {
 		try {
-			System.out.println(new ApplicationException(null, null, false, false).getSuppressed().length);
+			System.out.println(ReflectionUtils.invokeGetter(testDataBean, BEAN_ID_FIELD));
 		} catch (Exception error) {
 			error.printStackTrace();
 		}
