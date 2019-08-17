@@ -3,6 +3,8 @@ package accelerate.commons.util;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.util.function.Function;
+
 import org.junit.jupiter.api.Test;
 
 import accelerate.commons.exception.ApplicationException;
@@ -17,9 +19,8 @@ import accelerate.commons.exception.ApplicationException;
 @SuppressWarnings("static-method")
 class StreamUtilsTest {
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.StreamUtils#loadInputStream(java.lang.String, java.util.function.Function)}.
-	 * Main funcationailty tested as part of {@link XMLUtilsTests#testLoadXML()}
+	 * Test method for {@link StreamUtils#loadInputStream(String, Function)}. Main
+	 * funcationailty tested as part of {@link XMLUtilsTests#testLoadXML()}
 	 */
 	@Test
 	void testLoadInputStream() {
@@ -30,9 +31,8 @@ class StreamUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.StreamUtils#readInputStream(java.lang.String)}.
-	 * Tested as part of {@link XMLUtilsTests#testStringToXML()}
+	 * Test method for {@link StreamUtils#readInputStream(String)}. Tested as part
+	 * of {@link XMLUtilsTests#testStringToXML()}
 	 */
 	@Test
 	void testReadInputStream() {

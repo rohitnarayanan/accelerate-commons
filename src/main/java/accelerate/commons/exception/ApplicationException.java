@@ -1,7 +1,10 @@
 package accelerate.commons.exception;
 
+import java.util.Map;
+
 import org.slf4j.helpers.MessageFormatter;
 
+import accelerate.commons.constant.CommonConstants;
 import accelerate.commons.data.DataMap;
 import accelerate.commons.util.CommonUtils;
 import accelerate.commons.util.JacksonUtils;
@@ -132,41 +135,6 @@ public class ApplicationException extends RuntimeException {
 	}
 
 	/**
-	 * @param <T>
-	 * @param aKey
-	 * @return
-	 * @see accelerate.commons.data.DataMap#get(java.lang.String)
-	 */
-	public <T> T get(String aKey) {
-		return this.dataMap.get(aKey);
-	}
-
-	/**
-	 * @param aKey
-	 * @param aValue
-	 * @return
-	 * @see accelerate.commons.data.DataMap#putAnd(java.lang.String,
-	 *      java.lang.Object)
-	 */
-	public ApplicationException putAnd(String aKey, Object aValue) {
-		this.dataMap.putAnd(aKey, aValue);
-		return this;
-	}
-
-	/**
-	 * @param aArgs
-	 * @return
-	 * @see accelerate.commons.data.DataMap#putAllAnd(Object...)
-	 */
-	public ApplicationException putAllAnd(Object... aArgs) {
-		for (int idx = 0; idx < aArgs.length; idx += 2) {
-			this.dataMap.put((String) aArgs[idx], aArgs[idx + 1]);
-		}
-
-		return this;
-	}
-
-	/**
 	 * This methods returns a JSON representation of this exception
 	 * 
 	 * @return
@@ -174,7 +142,144 @@ public class ApplicationException extends RuntimeException {
 	 *                              {@link JacksonUtils#buildJSON(Object...)}
 	 */
 	public String toJSON() throws ApplicationException {
-		return JacksonUtils.buildJSON("message", getMessage(), "stacktrace", CommonUtils.getErrorLog(this), "data",
-				getDataMap());
+		return serialize(0);
+	}
+
+	/**
+	 * This methods returns a XML representation of this exception
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException
+	 */
+	public String toXML() throws ApplicationException {
+		return serialize(1);
+	}
+
+	/**
+	 * This methods returns a YAML representation of this exception
+	 *
+	 * @return JSON Representation
+	 * @throws ApplicationException
+	 */
+	public String toYAML() throws ApplicationException {
+		return serialize(2);
+	}
+
+	/**
+	 * This methods returns a serialized representation of this exception
+	 * 
+	 * @param aMode
+	 *              <dd>0 or any other input: JSON</dd>
+	 *              <dd>1: XML</dd>
+	 *              <dd>2: YAML</dd>
+	 * @return
+	 * @throws ApplicationException
+	 */
+	private String serialize(int aMode) throws ApplicationException {
+		Object[] elements = new Object[] { "message", getMessage(), "stacktrace", CommonUtils.getErrorLog(this), "data",
+				getDataMap() };
+
+		switch (aMode) {
+		case 1:
+			return JacksonUtils.buildXML("ApplicationException", elements);
+		case 2:
+			return JacksonUtils.buildYAML(elements);
+		default:
+			return JacksonUtils.buildJSON(elements);
+		}
+	}
+
+	/*
+	 * Delegate Methods
+	 */
+	/**
+	 * @param aKey
+	 * @param aValue
+	 * @return
+	 * @see accelerate.commons.data.DataMap#add(java.lang.String, java.lang.Object)
+	 */
+	public ApplicationException add(String aKey, Object aValue) {
+		this.dataMap.add(aKey, aValue);
+		return this;
+	}
+
+	/**
+	 * @param aSourceMap
+	 * @return
+	 * @see accelerate.commons.data.DataMap#addAll(java.util.Map)
+	 */
+	public ApplicationException addAll(Map<? extends String, ? extends Object> aSourceMap) {
+		this.dataMap.addAll(aSourceMap);
+		return this;
+	}
+
+	/**
+	 * @param aArgs
+	 * @return
+	 * @see accelerate.commons.data.DataMap#addAll(Object...)
+	 */
+	public ApplicationException addAll(Object... aArgs) {
+		this.dataMap.addAll(aArgs);
+		return this;
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @return
+	 * @see java.util.HashMap#get(java.lang.Object)
+	 */
+	public <T> T get(String aKey) {
+		return this.dataMap.get(aKey);
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @param aDefaultValue
+	 * @return
+	 */
+	public <T> T getOrDefault(String aKey, T aDefaultValue) {
+		return this.dataMap.getOrDefault(aKey, aDefaultValue);
+	}
+
+	/**
+	 * @param aKey
+	 * @return
+	 * @see java.util.HashMap#get(java.lang.Object)
+	 */
+	public String getString(String aKey) {
+		Object value = this.dataMap.getOrDefault(aKey, CommonConstants.EMPTY_STRING);
+		return value.toString();
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @param aClass
+	 * @return
+	 * @see java.util.HashMap#get(java.lang.Object)
+	 */
+	public <T extends Number> T getNumber(String aKey, Class<T> aClass) {
+		return this.dataMap.getNumber(aKey, aClass);
+	}
+
+	/**
+	 * @param aKey
+	 * @param aValue
+	 * @return
+	 * @see java.util.HashMap#get(java.lang.Object)
+	 */
+	public boolean checkValue(String aKey, Object aValue) {
+		return this.dataMap.checkValue(aKey, aValue);
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @return
+	 */
+	public <T> T remove(String aKey) {
+		return this.dataMap.remove(aKey);
 	}
 }

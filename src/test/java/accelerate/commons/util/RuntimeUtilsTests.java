@@ -23,7 +23,9 @@ class RuntimeUtilsTests {
 	void testExecuteOSCommand() {
 		assertEquals("testExecuteOSCommand", RuntimeUtils.executeOSCommand("echo testExecuteOSCommand", null, null));
 
-		assertEquals("testExecuteOSCommand", RuntimeUtils.executeOSCommand("echo testExecuteOSCommand", null,
-				new File(System.getProperty("user.home"))));
+		if (!System.getProperty("os.name").toLowerCase().startsWith("win")) {
+			assertEquals(System.getProperty("user.home"),
+					RuntimeUtils.executeOSCommand("pwd", null, new File(System.getProperty("user.home"))));
+		}
 	}
 }

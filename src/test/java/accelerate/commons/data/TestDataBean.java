@@ -37,6 +37,8 @@ public class TestDataBean extends DataBean {
 	}
 
 	/**
+	 * overloaded constructor
+	 * 
 	 * @param aBeanId
 	 * @param aBeanName
 	 */

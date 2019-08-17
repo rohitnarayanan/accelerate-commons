@@ -561,7 +561,7 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String buildJSON(Object... aArgs) throws ApplicationException {
-		return serialize(jsonMapper, DataMap.newMap(aArgs));
+		return buildJSON(jsonMapper, aArgs);
 	}
 
 	/**
@@ -575,22 +575,24 @@ public final class JacksonUtils {
 	}
 
 	/**
+	 * @param aRootTag
 	 * @param aArgs
 	 * @return
 	 * @throws ApplicationException
 	 */
-	public static String buildXML(Object... aArgs) throws ApplicationException {
-		return serialize(xmlMapper, DataMap.newMap(aArgs));
+	public static String buildXML(String aRootTag, Object... aArgs) throws ApplicationException {
+		return buildXML(xmlMapper, aRootTag, aArgs);
 	}
 
 	/**
-	 * @param aMapper {@link XmlMapper} instance to use for serialization
+	 * @param aMapper  {@link XmlMapper} instance to use for serialization
+	 * @param aRootTag
 	 * @param aArgs
 	 * @return
 	 * @throws ApplicationException
 	 */
-	public static String buildXML(XmlMapper aMapper, Object... aArgs) throws ApplicationException {
-		return serialize(aMapper, DataMap.newMap(aArgs));
+	public static String buildXML(XmlMapper aMapper, String aRootTag, Object... aArgs) throws ApplicationException {
+		return serialize(aMapper, DataMap.newMap(aArgs)).replaceAll("DataMap>", aRootTag + ">");
 	}
 
 	/**
@@ -599,7 +601,7 @@ public final class JacksonUtils {
 	 * @throws ApplicationException
 	 */
 	public static String buildYAML(Object... aArgs) throws ApplicationException {
-		return serialize(yamlMapper, DataMap.newMap(aArgs));
+		return buildYAML(yamlMapper, aArgs);
 	}
 
 	/**

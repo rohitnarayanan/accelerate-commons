@@ -1,12 +1,15 @@
 package accelerate.commons.util;
 
-import static accelerate.commons.AccelerateCommonsTest.testDataBean;
 import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_FIELD;
 import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_VALUE;
+import static accelerate.commons.constant.CommonTestConstants.KEY;
+import static accelerate.commons.constant.CommonTestConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
 
+import accelerate.commons.data.DataBean;
+import accelerate.commons.data.DataMap;
 import accelerate.commons.data.TestDataBean;
 
 /**
@@ -18,6 +21,11 @@ import accelerate.commons.data.TestDataBean;
  */
 @SuppressWarnings("static-method")
 class ReflectionUtilsTest {
+	/**
+	 * {@link DataMap} for this test class
+	 */
+	private static final DataBean testObject = new TestDataBean().add(KEY, VALUE);
+
 	/**
 	 * static field for {@link #testSetStaticFieldValue()}
 	 */
@@ -32,17 +40,15 @@ class ReflectionUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#getFieldValue(Object, String)}.
+	 * Test method for {@link ReflectionUtils#getFieldValue(Object, String)}.
 	 */
 	@Test
 	void testGetFieldValue() {
-		assertEquals(BEAN_ID_VALUE, ReflectionUtils.getFieldValue(testDataBean, BEAN_ID_FIELD));
+		assertEquals(BEAN_ID_VALUE, ReflectionUtils.getFieldValue(testObject, BEAN_ID_FIELD));
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#getStaticFieldValue(Class, String)}.
+	 * Test method for {@link ReflectionUtils#getStaticFieldValue(Class, String)}.
 	 */
 	@Test
 	void testGetStaticFieldValue() {
@@ -50,17 +56,15 @@ class ReflectionUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#getField(Object, String)}.
+	 * Test method for {@link ReflectionUtils#getField(Object, String)}.
 	 */
 	@Test
 	void testGetFieldObjectString() {
-		assertEquals("ignoredFields", ReflectionUtils.getField(testDataBean, "ignoredFields").getName());
+		assertEquals("ignoredFields", ReflectionUtils.getField(testObject, "ignoredFields").getName());
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#getField(Class, String)}.
+	 * Test method for {@link ReflectionUtils#getField(Class, String)}.
 	 */
 	@Test
 	void testGetFieldClassOfQString() {
@@ -69,7 +73,7 @@ class ReflectionUtilsTest {
 
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#setFieldValue(Object, String, Object)}.
+	 * {@link ReflectionUtils#setFieldValue(Object, String, Object)}.
 	 */
 	@Test
 	void testSetFieldValue() {
@@ -80,7 +84,7 @@ class ReflectionUtilsTest {
 
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#setStaticFieldValue(Class, String, Object)}.
+	 * {@link ReflectionUtils#setStaticFieldValue(Class, String, Object)}.
 	 */
 	@Test
 	void testSetStaticFieldValue() {
@@ -89,17 +93,15 @@ class ReflectionUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#invokeGetter(Object, String)}.
+	 * Test method for {@link ReflectionUtils#invokeGetter(Object, String)}.
 	 */
 	@Test
 	void testInvokeGetter() {
-		assertEquals(BEAN_ID_VALUE, ReflectionUtils.invokeGetter(testDataBean, BEAN_ID_FIELD));
+		assertEquals(BEAN_ID_VALUE, ReflectionUtils.invokeGetter(testObject, BEAN_ID_FIELD));
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#invokeSetter(Object, String, Object)}.
+	 * Test method for {@link ReflectionUtils#invokeSetter(Object, String, Object)}.
 	 */
 	@Test
 	void testInvokeSetter() {
@@ -110,17 +112,17 @@ class ReflectionUtilsTest {
 
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#invokeMethod(Object, String, Class[], Object[])}.
+	 * {@link ReflectionUtils#invokeMethod(Object, String, Class[], Object[])}.
 	 */
 	@Test
 	void testInvokeMethod() {
-		Object value = ReflectionUtils.invokeMethod(testDataBean, "toJSON", new Class<?>[] {}, new Object[] {});
-		assertEquals(testDataBean.toJSON(), value);
+		Object value = ReflectionUtils.invokeMethod(testObject, "toJSON", new Class<?>[] {}, new Object[] {});
+		assertEquals(testObject.toJSON(), value);
 	}
 
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#invokeStaticMethod(Class, String, Class[], Object[])}.
+	 * {@link ReflectionUtils#invokeStaticMethod(Class, String, Class[], Object[])}.
 	 */
 	@Test
 	void testInvokeStaticMethod() {
@@ -129,17 +131,15 @@ class ReflectionUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#findMethod(Object, String, Class[])}.
+	 * Test method for {@link ReflectionUtils#findMethod(Object, String, Class[])}.
 	 */
 	@Test
 	void testFindMethodObjectStringClassOfQArray() {
-		assertEquals("toJSON", ReflectionUtils.findMethod(testDataBean, "toJSON", new Class<?>[] {}).getName());
+		assertEquals("toJSON", ReflectionUtils.findMethod(testObject, "toJSON", new Class<?>[] {}).getName());
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.ReflectionUtils#findMethod(Class, String, Class[])}.
+	 * Test method for {@link ReflectionUtils#findMethod(Class, String, Class[])}.
 	 */
 	@Test
 	void testFindMethodClassOfQStringClassOfQArray() {

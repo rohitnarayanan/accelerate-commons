@@ -9,6 +9,7 @@ import java.util.Set;
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 
+import accelerate.commons.constant.CommonConstants;
 import accelerate.commons.exception.ApplicationException;
 import accelerate.commons.util.CommonUtils;
 import accelerate.commons.util.JacksonUtils;
@@ -30,7 +31,7 @@ public class DataBean implements Serializable {
 	 * Instance of {@link DataMap} for generic storage
 	 */
 	@JsonAnySetter
-	private transient DataMap dataMap = DataMap.newMap();
+	private transient final DataMap dataMap = DataMap.newMap();
 
 	/**
 	 * {@link Set} to include names of fields to exclude while serializing
@@ -48,17 +49,9 @@ public class DataBean implements Serializable {
 	 */
 	public static final DataBean newBean(Object... aArgs) {
 		DataBean bean = new DataBean();
-		if (!CommonUtils.isEmpty(aArgs)) {
-			bean.dataMap.putAllAnd(aArgs);
-		}
+		bean.dataMap.addAll(aArgs);
 
 		return bean;
-	}
-
-	/**
-	 * default constructor
-	 */
-	public DataBean() {
 	}
 
 	/*
@@ -81,6 +74,10 @@ public class DataBean implements Serializable {
 	 * @param aFieldNames
 	 */
 	public synchronized void addIgnoredFields(String... aFieldNames) {
+		if (CommonUtils.isEmpty(aFieldNames)) {
+			return;
+		}
+
 		if (this.ignoredFields == Collections.EMPTY_SET) {
 			this.ignoredFields = new HashSet<>();
 		}
@@ -96,6 +93,10 @@ public class DataBean implements Serializable {
 	 * @param aFieldNames
 	 */
 	public synchronized void removeIgnoredFields(String... aFieldNames) {
+		if (CommonUtils.isEmpty(aFieldNames)) {
+			return;
+		}
+
 		if (this.ignoredFields.isEmpty()) {
 			return;
 		}
@@ -123,7 +124,7 @@ public class DataBean implements Serializable {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this bean
+	 * This methods returns a XML representation of this bean
 	 *
 	 * @return JSON Representation
 	 * @throws ApplicationException
@@ -133,7 +134,7 @@ public class DataBean implements Serializable {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this bean
+	 * This methods returns a YAML representation of this bean
 	 *
 	 * @return JSON Representation
 	 * @throws ApplicationException
@@ -143,7 +144,7 @@ public class DataBean implements Serializable {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this bean
+	 * This methods returns a serialized representation of this bean
 	 * 
 	 * @param aMode
 	 *              <dd>0 or any other input: JSON</dd>
@@ -176,59 +177,36 @@ public class DataBean implements Serializable {
 	}
 
 	/*
-	 * Override Methods
-	 */
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	/**
-	 * @return
-	 * @throws ApplicationException
-	 */
-	@Override
-	public String toString() throws ApplicationException {
-		return toJSON();
-	}
-
-	/*
 	 * Delegate Methods
 	 */
 	/**
 	 * @param aKey
 	 * @param aValue
 	 * @return
-	 * @see accelerate.commons.data.DataMap#putAnd(java.lang.String,
-	 *      java.lang.Object)
+	 * @see accelerate.commons.data.DataMap#add(java.lang.String, java.lang.Object)
 	 */
-	public DataBean putAnd(String aKey, Object aValue) {
-		this.dataMap.putAnd(aKey, aValue);
-
+	public DataBean add(String aKey, Object aValue) {
+		this.dataMap.add(aKey, aValue);
 		return this;
 	}
 
 	/**
 	 * @param aSourceMap
 	 * @return
-	 * @see accelerate.commons.data.DataMap#putAllAnd(java.util.Map)
+	 * @see accelerate.commons.data.DataMap#addAll(java.util.Map)
 	 */
-	public DataBean putAllAnd(Map<? extends String, ? extends Object> aSourceMap) {
-		this.dataMap.putAllAnd(aSourceMap);
-
+	public DataBean addAll(Map<? extends String, ? extends Object> aSourceMap) {
+		this.dataMap.addAll(aSourceMap);
 		return this;
 	}
 
 	/**
 	 * @param aArgs
 	 * @return
-	 * @see accelerate.commons.data.DataMap#putAllAnd(Object...)
+	 * @see accelerate.commons.data.DataMap#addAll(Object...)
 	 */
-	public DataBean putAllAnd(Object... aArgs) {
-		for (int idx = 0; idx < aArgs.length; idx += 2) {
-			this.dataMap.put((String) aArgs[idx], aArgs[idx + 1]);
-		}
-
+	public DataBean addAll(Object... aArgs) {
+		this.dataMap.addAll(aArgs);
 		return this;
 	}
 
@@ -236,38 +214,59 @@ public class DataBean implements Serializable {
 	 * @param <T>
 	 * @param aKey
 	 * @return
-	 * @see accelerate.commons.data.DataMap#get(java.lang.String)
+	 * @see java.util.HashMap#get(java.lang.Object)
 	 */
 	public <T> T get(String aKey) {
 		return this.dataMap.get(aKey);
 	}
 
 	/**
+	 * @param <T>
 	 * @param aKey
+	 * @param aDefaultValue
 	 * @return
-	 * @see accelerate.commons.data.DataMap#getString(java.lang.String)
 	 */
-	public String getString(String aKey) {
-		return this.dataMap.getString(aKey);
+	public <T> T getOrDefault(String aKey, T aDefaultValue) {
+		return this.dataMap.getOrDefault(aKey, aDefaultValue);
 	}
 
 	/**
 	 * @param aKey
 	 * @return
-	 * @see accelerate.commons.data.DataMap#getInt(java.lang.String)
+	 * @see java.util.HashMap#get(java.lang.Object)
 	 */
-	public Integer getInt(String aKey) {
-		return this.dataMap.getInt(aKey);
+	public String getString(String aKey) {
+		Object value = this.dataMap.getOrDefault(aKey, CommonConstants.EMPTY_STRING);
+		return value.toString();
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @param aClass
+	 * @return
+	 * @see java.util.HashMap#get(java.lang.Object)
+	 */
+	public <T extends Number> T getNumber(String aKey, Class<T> aClass) {
+		return this.dataMap.getNumber(aKey, aClass);
 	}
 
 	/**
 	 * @param aKey
 	 * @param aValue
 	 * @return
-	 * @see accelerate.commons.data.DataMap#checkValue(java.lang.String,
-	 *      java.lang.Object)
+	 * @see java.util.HashMap#get(java.lang.Object)
 	 */
 	public boolean checkValue(String aKey, Object aValue) {
 		return this.dataMap.checkValue(aKey, aValue);
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @return
+	 */
+	public <T> T remove(String aKey) {
+		return this.dataMap.remove(aKey);
 	}
 }

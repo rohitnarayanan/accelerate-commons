@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.Test;
 
 /**
- * PUT DESCRIPTION HERE
+ * {@link Test} class for {@link SkippingException}
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
@@ -14,8 +14,7 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("static-method")
 class SkippingExceptionTest {
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.exception.SkippingException#SkippingException(java.lang.String)}.
+	 * Test method for {@link SkippingException#SkippingException(String)}.
 	 */
 	@Test
 	void testSkippingException() {

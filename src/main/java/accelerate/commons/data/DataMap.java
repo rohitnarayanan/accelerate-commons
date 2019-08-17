@@ -3,8 +3,6 @@ package accelerate.commons.data;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlRootElement;
-
 import accelerate.commons.constant.CommonConstants;
 import accelerate.commons.exception.ApplicationException;
 import accelerate.commons.util.CommonUtils;
@@ -18,7 +16,6 @@ import accelerate.commons.util.JacksonUtils;
  * @author Rohit Narayanan
  * @since January 14, 2015
  */
-@JacksonXmlRootElement(localName = "Data")
 public class DataMap extends HashMap<String, Object> {
 	/**
 	 * serialVersionUID
@@ -34,17 +31,8 @@ public class DataMap extends HashMap<String, Object> {
 	public static DataMap newMap(Object... aArgs) {
 		DataMap dataMap = new DataMap();
 
-		if (!CommonUtils.isEmpty(aArgs)) {
-			dataMap.putAllAnd(aArgs);
-		}
-
+		dataMap.addAll(aArgs);
 		return dataMap;
-	}
-
-	/**
-	 * hidden constructor
-	 */
-	private DataMap() {
 	}
 
 	/**
@@ -54,8 +42,8 @@ public class DataMap extends HashMap<String, Object> {
 	 * @param aValue
 	 * @return
 	 */
-	public DataMap putAnd(String aKey, Object aValue) {
-		put(aKey, aValue);
+	public DataMap add(String aKey, Object aValue) {
+		super.put(aKey, aValue);
 		return this;
 	}
 
@@ -65,7 +53,7 @@ public class DataMap extends HashMap<String, Object> {
 	 * @param aSourceMap
 	 * @return
 	 */
-	public DataMap putAllAnd(Map<? extends String, ? extends Object> aSourceMap) {
+	public DataMap addAll(Map<? extends String, ? extends Object> aSourceMap) {
 		super.putAll(aSourceMap);
 		return this;
 	}
@@ -76,7 +64,15 @@ public class DataMap extends HashMap<String, Object> {
 	 * @param aArgs
 	 * @return
 	 */
-	public DataMap putAllAnd(Object... aArgs) {
+	public DataMap addAll(Object... aArgs) {
+		if (CommonUtils.isEmpty(aArgs)) {
+			return this;
+		}
+
+		if ((aArgs.length % 2) != 0) {
+			throw new ApplicationException("Expected key/value pairs. Current number of arguments: {}", aArgs.length);
+		}
+
 		for (int idx = 0; idx < aArgs.length; idx += 2) {
 			put((String) aArgs[idx], aArgs[idx + 1]);
 		}
@@ -96,12 +92,14 @@ public class DataMap extends HashMap<String, Object> {
 	}
 
 	/**
+	 * @param <T>
 	 * @param aKey
+	 * @param aDefaultValue
 	 * @return
-	 * @see java.util.HashMap#get(java.lang.Object)
 	 */
-	public String getString(String aKey) {
-		return getOrDefault(aKey, CommonConstants.EMPTY_STRING).toString();
+	@SuppressWarnings("unchecked")
+	public <T> T getOrDefault(String aKey, T aDefaultValue) {
+		return (T) super.getOrDefault(aKey, aDefaultValue);
 	}
 
 	/**
@@ -109,15 +107,24 @@ public class DataMap extends HashMap<String, Object> {
 	 * @return
 	 * @see java.util.HashMap#get(java.lang.Object)
 	 */
-	public Integer getInt(String aKey) {
+	public String getString(String aKey) {
+		return super.getOrDefault(aKey, CommonConstants.EMPTY_STRING).toString();
+	}
+
+	/**
+	 * @param <T>
+	 * @param aKey
+	 * @param aClass
+	 * @return
+	 * @see java.util.HashMap#get(java.lang.Object)
+	 */
+	public <T extends Number> T getNumber(String aKey, Class<T> aClass) {
 		Object value = get(aKey);
 		if (value == null) {
 			return null;
-		} else if (value instanceof Integer) {
-			return (Integer) value;
 		}
 
-		return Integer.parseInt(value.toString());
+		return aClass.cast(value);
 	}
 
 	/**
@@ -141,7 +148,7 @@ public class DataMap extends HashMap<String, Object> {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this bean
+	 * This methods returns a JSON representation of this map
 	 *
 	 * @return JSON Representation
 	 * @throws ApplicationException
@@ -151,7 +158,7 @@ public class DataMap extends HashMap<String, Object> {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this bean
+	 * This methods returns a XML representation of this map
 	 *
 	 * @return JSON Representation
 	 * @throws ApplicationException
@@ -161,7 +168,7 @@ public class DataMap extends HashMap<String, Object> {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this bean
+	 * This methods returns a YAML representation of this map
 	 *
 	 * @return JSON Representation
 	 * @throws ApplicationException
@@ -171,7 +178,7 @@ public class DataMap extends HashMap<String, Object> {
 	}
 
 	/**
-	 * This methods returns a JSON representation of this bean
+	 * This methods returns a serialized representation of this map
 	 * 
 	 * @param aMode
 	 *              <dd>0 or any other input: JSON</dd>
@@ -189,19 +196,5 @@ public class DataMap extends HashMap<String, Object> {
 		default:
 			return JacksonUtils.toJSON(this);
 		}
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#toString()
-	 */
-	/**
-	 * @return
-	 * @throws ApplicationException thrown due to {@link #toJSON()}
-	 */
-	@Override
-	public String toString() throws ApplicationException {
-		return toJSON();
 	}
 }

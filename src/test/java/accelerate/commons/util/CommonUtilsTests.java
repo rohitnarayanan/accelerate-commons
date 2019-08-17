@@ -1,5 +1,7 @@
 package accelerate.commons.util;
 
+import static accelerate.commons.constant.CommonTestConstants.KEY;
+import static accelerate.commons.constant.CommonTestConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -11,7 +13,6 @@ import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
 
-import accelerate.commons.AccelerateCommonsTest;
 import accelerate.commons.data.DataMap;
 import accelerate.commons.exception.ApplicationException;
 
@@ -51,9 +52,9 @@ class CommonUtilsTests {
 		assertTrue(CommonUtils.isEmpty(new ArrayList<>()));
 		assertTrue(CommonUtils.isEmpty(new HashMap<>()));
 
-		assertFalse(CommonUtils.isEmpty(AccelerateCommonsTest.testDataMap));
+		assertFalse(CommonUtils.isEmpty(DataMap.newMap(KEY, VALUE)));
 	}
-
+	
 	/**
 	 * Test method for {@link CommonUtils#isEmptyAny(java.lang.Object[])}.
 	 */

@@ -28,7 +28,7 @@ import accelerate.commons.data.DataMap;
 class CollectionUtilsTests {
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.util.CollectionUtils#convertToMap(Properties, java.lang.Class)}.
+	 * {@link CollectionUtils#convertToMap(Properties, java.lang.Class)}.
 	 */
 	@Test
 	void testConvertToMap() {
@@ -48,8 +48,7 @@ class CollectionUtilsTests {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.CollectionUtils#compareMaps(Map, Map)}.
+	 * Test method for {@link CollectionUtils#compareMaps(Map, Map)}.
 	 */
 	@Test
 	@SuppressWarnings("unchecked")
@@ -69,8 +68,7 @@ class CollectionUtilsTests {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.CollectionUtils#toList(Object...)}.
+	 * Test method for {@link CollectionUtils#toList(Object...)}.
 	 */
 	@Test
 	void testToList() {
@@ -88,8 +86,7 @@ class CollectionUtilsTests {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.CollectionUtils#subList(List, int, int)}.
+	 * Test method for {@link CollectionUtils#subList(List, int, int)}.
 	 */
 	@Test
 	void testExtractUptoList() {
@@ -116,7 +113,7 @@ class CollectionUtilsTests {
 	}
 
 	/**
-	 * Test method for {@link accelerate.commons.util.CollectionUtils#sort(List)}.
+	 * Test method for {@link CollectionUtils#sort(List)}.
 	 */
 	@Test
 	void testSort() {

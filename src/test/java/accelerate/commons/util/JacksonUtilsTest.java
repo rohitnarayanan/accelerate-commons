@@ -1,7 +1,5 @@
 package accelerate.commons.util;
 
-import static accelerate.commons.AccelerateCommonsTest.testDataBean;
-import static accelerate.commons.AccelerateCommonsTest.testDataMap;
 import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
 import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_FIELD;
 import static accelerate.commons.constant.CommonTestConstants.BEAN_ID_VALUE;
@@ -23,6 +21,8 @@ import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
 import com.jayway.jsonpath.PathNotFoundException;
 
+import accelerate.commons.data.DataBean;
+import accelerate.commons.data.DataMap;
 import accelerate.commons.data.TestDataBean;
 import accelerate.commons.exception.ApplicationException;
 
@@ -36,42 +36,51 @@ import accelerate.commons.exception.ApplicationException;
 @SuppressWarnings("static-method")
 class JacksonUtilsTest {
 	/**
-	 * Test method for {@link accelerate.commons.util.JacksonUtils#objectMapper()}.
+	 * {@link DataMap} for this test class
+	 */
+	private static final DataMap testMap = DataMap.newMap(KEY, VALUE);
+
+	/**
+	 * {@link DataMap} for this test class
+	 */
+	private static final DataBean testBean = new TestDataBean().add(KEY, VALUE);
+
+	/**
+	 * Test method for {@link JacksonUtils#objectMapper()}.
 	 * 
 	 * @throws JsonProcessingException
 	 */
 	@Test
 	void testObjectMapper() throws JsonProcessingException {
-		assertThat(JacksonUtils.objectMapper().writeValueAsString(testDataMap))
+		assertThat(JacksonUtils.objectMapper().writeValueAsString(testMap))
 				.isEqualTo(JacksonUtils.buildJSON(KEY, VALUE));
 	}
 
 	/**
-	 * Test method for {@link accelerate.commons.util.JacksonUtils#xmlMapper()}.
+	 * Test method for {@link JacksonUtils#xmlMapper()}.
 	 * 
 	 * @throws JsonProcessingException
 	 */
 	@Test
 	void testXmlMapper() throws JsonProcessingException {
-		assertThat(JacksonUtils.xmlMapper().writeValueAsString(testDataMap))
-				.isEqualTo(JacksonUtils.buildXML(KEY, VALUE));
+		assertThat(JacksonUtils.xmlMapper().writeValueAsString(testMap))
+				.isEqualTo(JacksonUtils.buildXML("DataMap", KEY, VALUE));
 	}
 
 	/**
-	 * Test method for {@link accelerate.commons.util.JacksonUtils#yamlMapper()}.
+	 * Test method for {@link JacksonUtils#yamlMapper()}.
 	 * 
 	 * @throws ApplicationException
 	 * @throws JsonProcessingException
 	 */
 	@Test
 	void testYamlMapper() throws JsonProcessingException, ApplicationException {
-		assertThat(JacksonUtils.yamlMapper().writeValueAsString(testDataMap))
-				.isEqualTo(JacksonUtils.buildYAML(KEY, VALUE));
+		assertThat(JacksonUtils.yamlMapper().writeValueAsString(testMap)).isEqualTo(JacksonUtils.buildYAML(KEY, VALUE));
 	}
 
 	/**
 	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#configureMapper(com.fasterxml.jackson.databind.ObjectMapper)}.
+	 * {@link JacksonUtils#configureMapper(com.fasterxml.jackson.databind.ObjectMapper)}.
 	 */
 	@Test
 	void testConfigureMapper() {
@@ -82,81 +91,73 @@ class JacksonUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toJSON(java.lang.Object)}.
+	 * Test method for {@link JacksonUtils#toJSON(Object)}.
 	 */
 	@Test
 	void testToJSON() {
 		assertEquals(EMPTY_STRING, JacksonUtils.toJSON(null));
-		assertEquals(BEAN_ID_VALUE, JsonPath.parse(JacksonUtils.toJSON(testDataBean)).read("$." + BEAN_ID_FIELD));
+		assertEquals(BEAN_ID_VALUE, JsonPath.parse(JacksonUtils.toJSON(testBean)).read("$." + BEAN_ID_FIELD));
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toXML(java.lang.Object)}.
+	 * Test method for {@link JacksonUtils#toXML(Object)}.
 	 */
 	@Test
 	void testToXML() {
 		assertEquals(BEAN_ID_VALUE, XMLUtils.xPathNodeAttribute("/TestDataBean", BEAN_ID_FIELD,
-				XMLUtils.stringToXML(JacksonUtils.toXML(testDataBean))));
+				XMLUtils.stringToXML(JacksonUtils.toXML(testBean))));
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toYAML(java.lang.Object)}.
+	 * Test method for {@link JacksonUtils#toYAML(Object)}.
 	 */
 	@Test
 	void testToYAML() {
-		assertThat(JacksonUtils.toYAML(testDataBean)).contains(BEAN_ID_FIELD + ": \"");
+		assertThat(JacksonUtils.toYAML(testBean)).contains(BEAN_ID_FIELD + ": \"");
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toJSONExcludeFields(java.lang.Object, java.lang.String[])}.
+	 * Test method for {@link JacksonUtils#toJSONExcludeFields(Object, String[])}.
 	 */
 	@Test
 	void testToJSONExcludeFields() {
 		assertEquals(EMPTY_STRING, JacksonUtils.toJSONExcludeFields((Object) null, BEAN_NAME_FIELD));
 		assertThrows(PathNotFoundException.class, () -> JsonPath
-				.parse(JacksonUtils.toJSONExcludeFields(testDataBean, BEAN_NAME_FIELD)).read("$." + BEAN_NAME_FIELD));
+				.parse(JacksonUtils.toJSONExcludeFields(testBean, BEAN_NAME_FIELD)).read("$." + BEAN_NAME_FIELD));
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toXMLExcludeFields(java.lang.Object, java.lang.String[])}.
+	 * Test method for {@link JacksonUtils#toXMLExcludeFields(Object, String[])}.
 	 */
 	@Test
 	void testToXMLExcludeFields() {
 		assertTrue(StringUtils.isEmpty(XMLUtils.xPathNodeValue("/TestDataBean/" + BEAN_NAME_FIELD,
-				XMLUtils.stringToXML(JacksonUtils.toXMLExcludeFields(testDataBean, BEAN_NAME_FIELD)))));
+				XMLUtils.stringToXML(JacksonUtils.toXMLExcludeFields(testBean, BEAN_NAME_FIELD)))));
 
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toYAMLExcludeFields(java.lang.Object, java.lang.String[])}.
+	 * Test method for {@link JacksonUtils#toYAMLExcludeFields(Object, String[])}.
 	 */
 	@Test
 	void testToYAMLExcludeFields() {
-		assertThat(JacksonUtils.toYAMLExcludeFields(testDataBean, BEAN_NAME_FIELD)).doesNotContain(BEAN_NAME_FIELD);
+		assertThat(JacksonUtils.toYAMLExcludeFields(testBean, BEAN_NAME_FIELD)).doesNotContain(BEAN_NAME_FIELD);
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toJSONSelectFields(java.lang.Object, java.lang.String[])}.
+	 * Test method for {@link JacksonUtils#toJSONSelectFields(Object, String[])}.
 	 */
 	@Test
 	void testToJSONSelectFields() {
 		assertEquals(EMPTY_STRING, JacksonUtils.toJSONSelectFields((Object) null, BEAN_NAME_FIELD));
 
-		DocumentContext context = JsonPath.parse(JacksonUtils.toJSONSelectFields(testDataBean, BEAN_ID_FIELD));
+		DocumentContext context = JsonPath.parse(JacksonUtils.toJSONSelectFields(testBean, BEAN_ID_FIELD));
 		assertThrows(PathNotFoundException.class, () -> context.read("$." + BEAN_NAME_FIELD));
 		assertEquals(BEAN_ID_VALUE, context.read("$." + BEAN_ID_FIELD));
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toXMLSelectFields(java.lang.Object, java.lang.String[])}.
+	 * Test method for {@link JacksonUtils#toXMLSelectFields(Object, String[])}.
 	 */
 	@Test
 	void testToXMLSelectFields() {
@@ -164,45 +165,40 @@ class JacksonUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#toYAMLSelectFields(java.lang.Object, java.lang.String[])}.
+	 * Test method for {@link JacksonUtils#toYAMLSelectFields(Object, String[])}.
 	 */
 	@Test
 	void testToYAMLSelectFields() {
-		assertThat(JacksonUtils.toYAMLSelectFields(testDataBean, BEAN_ID_FIELD)).doesNotContain(BEAN_NAME_FIELD)
+		assertThat(JacksonUtils.toYAMLSelectFields(testBean, BEAN_ID_FIELD)).doesNotContain(BEAN_NAME_FIELD)
 				.contains(BEAN_ID_FIELD + ": \"");
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#fromJSON(java.lang.String, java.lang.Class)}.
+	 * Test method for {@link JacksonUtils#fromJSON(String, Class)}.
 	 */
 	@Test
 	void testFromJSON() {
-		assertEquals(BEAN_ID_VALUE, JacksonUtils.fromJSON(testDataBean.toJSON(), TestDataBean.class).getBeanId());
+		assertEquals(BEAN_ID_VALUE, JacksonUtils.fromJSON(testBean.toJSON(), TestDataBean.class).getBeanId());
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#fromXML(java.lang.String, java.lang.Class)}.
+	 * Test method for {@link JacksonUtils#fromXML(String, Class)}.
 	 */
 	@Test
 	void testFromXML() {
-		assertEquals(BEAN_ID_VALUE, JacksonUtils.fromXML(testDataBean.toXML(), TestDataBean.class).getBeanId());
+		assertEquals(BEAN_ID_VALUE, JacksonUtils.fromXML(testBean.toXML(), TestDataBean.class).getBeanId());
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#fromYAML(java.lang.String, java.lang.Class)}.
+	 * Test method for {@link JacksonUtils#fromYAML(String, Class)}.
 	 */
 	@Test
 	void testFromYAML() {
-		assertEquals(BEAN_ID_VALUE, JacksonUtils.fromYAML(testDataBean.toYAML(), TestDataBean.class).getBeanId());
+		assertEquals(BEAN_ID_VALUE, JacksonUtils.fromYAML(testBean.toYAML(), TestDataBean.class).getBeanId());
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#buildJSON(Object...)}.
+	 * Test method for {@link JacksonUtils#buildJSON(Object...)}.
 	 */
 	@Test
 	void testBuildJSONObjectArray() {
@@ -210,18 +206,16 @@ class JacksonUtilsTest {
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#buildXML(java.lang.Object[])}.
+	 * Test method for {@link JacksonUtils#buildXML(String, Object[])}.
 	 */
 	@Test
 	void testBuildXMLObjectArray() {
-		assertEquals(VALUE,
-				XMLUtils.xPathNodeValue("/Data/key", XMLUtils.stringToXML(JacksonUtils.buildXML(KEY, VALUE))));
+		assertEquals(VALUE, XMLUtils.xPathNodeValue("/BuildXML/key",
+				XMLUtils.stringToXML(JacksonUtils.buildXML("BuildXML", KEY, VALUE))));
 	}
 
 	/**
-	 * Test method for
-	 * {@link accelerate.commons.util.JacksonUtils#buildYAML(java.lang.Object[])}.
+	 * Test method for {@link JacksonUtils#buildYAML(Object[])}.
 	 */
 	@Test
 	void testBuildYAMLObjectArray() {
