@@ -12,9 +12,12 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.FileSystemUtils;
 
 import accelerate.commons.exception.ApplicationException;
 
@@ -30,7 +33,25 @@ class NIOUtilsTests {
 	/**
 	 * {@link Path} for temp directory
 	 */
-	private static Path tempPath = Paths.get(System.getProperty("java.io.tmpdir"));
+	private static Path tempPath = null;
+
+	/**
+	 * @throws IOException
+	 * 
+	 */
+	@BeforeAll
+	static void initialize() throws IOException {
+		tempPath = Files.createTempDirectory("NIOUtilsTests");
+		LOGGER.debug("initialize: {} | {}", tempPath, Files.exists(tempPath));
+	}
+
+	/**
+	 * @throws IOException
+	 */
+	@AfterAll
+	static void cleanup() throws IOException {
+		LOGGER.debug("cleanup: {} | {}", FileSystemUtils.deleteRecursively(tempPath), Files.exists(tempPath));
+	}
 
 	/**
 	 * Test method for {@link NIOUtils#getPathString(Path)}.
