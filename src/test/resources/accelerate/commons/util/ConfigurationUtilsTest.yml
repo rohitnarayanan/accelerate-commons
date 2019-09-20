@@ -1,0 +1,9 @@
+accelerate:
+  commons:
+    util:
+      ConfigurationUtils: ConfigurationUtils
+
+test:
+  list:
+    - item1
+    - item2
