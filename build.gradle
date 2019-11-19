@@ -9,17 +9,15 @@ apply from: "https://raw.githubusercontent.com/rohitnarayanan/gradle-scripts/mas
  */
 dependencies {
 	implementation("org.slf4j:slf4j-api")
+	implementation("org.yaml:snakeyaml")
 	
 	implementation("com.fasterxml.jackson.core:jackson-databind")
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-properties")
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
 	implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-yaml")
-	implementation("org.yaml:snakeyaml")
 	
 	implementation("javax.servlet:javax.servlet-api")
 	implementation("javax.xml.bind:jaxb-api")
-	//compile('javax.activation:javax.activation-api:1.1')
-	//implementation("org.glassfish.jaxb:jaxb-runtime")
 
 	testImplementation ("org.springframework.boot:spring-boot-starter-test") {
 		exclude group: "junit" 
