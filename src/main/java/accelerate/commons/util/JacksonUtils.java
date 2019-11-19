@@ -11,8 +11,6 @@ import com.fasterxml.jackson.annotation.JsonAutoDetect.Visibility;
 import com.fasterxml.jackson.annotation.JsonFilter;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.PropertyAccessor;
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -95,11 +93,7 @@ public final class JacksonUtils {
 		// Write settings
 		aMapper.setDefaultPropertyInclusion(Include.NON_NULL);
 		aMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-		aMapper.configure(JsonGenerator.Feature.ESCAPE_NON_ASCII, true);
 		aMapper.configure(MapperFeature.ALLOW_FINAL_FIELDS_AS_MUTATORS, false);
-
-		// Read settings
-		aMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
 
 		return aMapper;
 	}
