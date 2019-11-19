@@ -161,7 +161,8 @@ class JacksonUtilsTest {
 	 */
 	@Test
 	void testToXMLSelectFields() {
-		assertTrue(true, "https://github.com/FasterXML/jackson-dataformat-xml/issues/351");
+		assertThat(JacksonUtils.toXMLSelectFields(testBean, BEAN_ID_FIELD)).doesNotContain(BEAN_NAME_FIELD)
+				.contains(BEAN_ID_FIELD + "=\"");
 	}
 
 	/**
