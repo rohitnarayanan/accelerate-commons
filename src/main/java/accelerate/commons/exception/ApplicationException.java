@@ -100,8 +100,8 @@ public class ApplicationException extends RuntimeException {
 	}
 
 	/**
-	 * @param aError see {@link #checkAndThrow(Exception, String, Object...)}
-	 * @return see {@link #checkAndThrow(Exception, String, Object...)}
+	 * @param aError see {@link #checkAndThrow(Throwable, String, Object...)}
+	 * @return see {@link #checkAndThrow(Throwable, String, Object...)}
 	 * @throws ApplicationException checks instance throws original or wrapped
 	 *                              exception
 	 */

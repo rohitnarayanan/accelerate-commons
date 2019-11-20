@@ -4,7 +4,9 @@ package accelerate.commons.constant;
  * Class containing basic set of constants that are usually used in app
  * development
  * 
- * @since July 16, 2019
+ * @version 1.0 Initial Version
+ * @author Rohit Narayanan
+ * @since January 14, 2015
  */
 @SuppressWarnings("javadoc")
 public final class CommonConstants {
