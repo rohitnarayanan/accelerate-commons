@@ -20,7 +20,7 @@ import accelerate.commons.exception.ApplicationException;
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since July 20, 2019
+ * @since January 14, 2015
  */
 public class StreamUtils {
 	/**

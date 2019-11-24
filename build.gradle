@@ -1,8 +1,11 @@
 // package this build as a dependency jar
 apply plugin: "java-library"
 
-// apply standard java build configuration 
+/*
+ * Apply standard java build configuration
+ */ 
 apply from: "https://raw.githubusercontent.com/rohitnarayanan/gradle-scripts/master/java/java-build.gradle"
+//apply from: "http://localproxy.localhost.com:4080/devops/gradle-scripts/java/java-build.gradle"
 
 /*
  * Dependencies

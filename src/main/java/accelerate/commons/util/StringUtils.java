@@ -7,7 +7,7 @@ import static accelerate.commons.constant.CommonConstants.EMPTY_STRING;
  * 
  * @version 1.0 Initial Version
  * @author Rohit Narayanan
- * @since October 2, 2017
+ * @since January 14, 2015
  */
 public final class StringUtils {
 	/**
