@@ -29,5 +29,5 @@ steps:
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: 'JaCoCo'
-    summaryFileLocation: '$(Pipeline.Workspace)/build/s/target/site/jacoco/jacoco.xml'
-    pathToSources: '$(Pipeline.Workspace)/build/s/src/main/java'
+    summaryFileLocation: '$(Pipeline.Workspace)/build/reports/jacoco/test/html/index.html'
+    pathToSources: '$(System.DefaultWorkingDirectory)/accelerate-commons/src/main/java/'
