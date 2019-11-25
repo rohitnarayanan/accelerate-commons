@@ -29,5 +29,6 @@ steps:
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: 'JaCoCo'
-    summaryFileLocation: '$(Pipeline.Workspace)/s/build/reports/jacoco/test/html/index.html'
+    summaryFileLocation: '$(Pipeline.Workspace)/s/build/reports/jacoco/test/jacocoTestReport.xml'
     pathToSources: '$(Pipeline.Workspace)/s/src/main/java'
+    additionalCodeCoverageFiles: '$(Pipeline.Workspace)/s/build/jacoco/test.exec'
