@@ -16,7 +16,6 @@ steps:
     options: '--debug'
     tasks: 'build'
     publishJUnitResults: false
-    codeCoverageToolOption: 'JaCoCo'
     javaHomeOption: 'JDKVersion'
     jdkVersionOption: '1.11'
     gradleOptions: '-Xmx2048m'
