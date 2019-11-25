@@ -16,6 +16,7 @@ steps:
     options: '--debug'
     tasks: 'build'
     publishJUnitResults: false
+    codeCoverageToolOption: 'JaCoCo'
     javaHomeOption: 'JDKVersion'
     jdkVersionOption: '1.11'
     gradleOptions: '-Xmx2048m'
@@ -29,5 +30,7 @@ steps:
 - task: PublishCodeCoverageResults@1
   inputs:
     codeCoverageTool: 'JaCoCo'
-    summaryFileLocation: '$(Pipeline.Workspace)/build/reports/jacoco/test/html/index.html'
-    pathToSources: '$(System.DefaultWorkingDirectory)/accelerate-commons/src/main/java/'
+    summaryFileLocation: '$(System.DefaultWorkingDirectory)/target/site/jacoco/jacoco.xml'
+    pathToSources: '$(System.DefaultWorkingDirectory)'
+    additionalCodeCoverageFiles: '$(System.DefaultWorkingDirectory)/target/jacoco.exec'
+
